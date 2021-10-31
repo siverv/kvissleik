@@ -1,0 +1,117 @@
+:root {
+  --theme-bg: #22334A;
+  --theme-fg: white;
+}
+
+body {
+  margin: 0;
+  background-color: #8293AA;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: min-content minmax(300px, auto) 100px;
+  min-height: 100vh;
+}
+
+.app-main {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.app-footer {
+  margin: auto;
+  text-align: center;
+}
+
+.app-header {
+  background-color: var(--theme-bg);
+  color: var(--theme-fg);
+  padding: 10px 0;
+}
+.app-header .inner {
+  margin: auto;
+  max-width: 1400px;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: minmax(1.5em, auto) minmax(1.5em, auto);
+}
+.app-header .header-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column
+}
+.app-header .app-logo {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  font-size: 2em;
+  margin-left: 10px;
+  margin-right: 20px;
+}
+.app-header .app-logo .logo {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.app-header .title {
+  font-size: 1em;
+  margin: 0;
+}
+.app-header .app-nav {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.app-header .tab-button {
+  border: none;
+  background-color: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.app-header .tab-button:hover {
+  text-decoration: underline;
+}
+
+
+
+
+.quiz-editor {
+  display: grid;
+  grid-template-columns: 256px calc(100% - 512px) 256px; 
+  grid-template-rows: min-content 768px;
+  grid-gap: 10px;
+  padding: 10px 0;
+}
+.quiz-editor .editor-toolbar {
+  grid-column: 1 / 4;
+  display: grid;
+  grid-template-columns: auto 123px 123px;
+  grid-gap: 10px;
+}
+.quiz-editor .editor-toolbar h3 {
+  margin: 0;
+}
+
+.quiz-editor .editor-toolbar [contenteditable] {
+  border: 1px inset aliceblue;
+  padding: 0.5ch 1ch;
+  background-color: white;
+  margin: 0;
+}
+.quiz-editor .pages {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.quiz-editor .page-editor {
+  margin: 0 auto;
+  width: 100%;
+}
+.quiz-editor .page-editor .quiz {
+  background-color: white;
+  padding: 2ch;
+}
+

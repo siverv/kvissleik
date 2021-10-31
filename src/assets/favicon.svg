@@ -1,0 +1,11 @@
+<svg width="200" height="200" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 0, 100 C 0, 0 0, 0 100, 0 S 200, 0 200, 100 200, 200 100, 200 0, 200 0, 100" fill="#22334A"></path>
+    <text
+        x="50%"
+        y="50%"
+        font-size="170"
+        fill="white"
+        font-weight="bolder"
+        dominant-baseline="middle"
+        text-anchor="middle">Q</text>
+</svg>
