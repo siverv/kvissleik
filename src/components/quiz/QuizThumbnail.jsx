@@ -1,6 +1,3 @@
-import { createMemo } from 'solid-js';
-import './quiz.css';
-
 
 export function QuizThumbnail({quizTask}){
   return <div class="quiz-thumbnail">

@@ -1,0 +1,55 @@
+
+.make-view .quiz-name {
+  font-size: 1.5em;
+  margin: 0 -1px;
+  padding: 0.5ch 1ch;
+  margin: 0;
+  background-color: var(--theme-bg);
+  color: var(--theme-fg);
+  border: none;
+  border-bottom: 2px solid var(--theme-fg);
+}
+
+.make-view {
+  display: grid;
+  grid-template-columns: 256px calc(100% - 512px) 256px; 
+  grid-template-rows: min-content 768px;
+  grid-gap: 10px;
+  padding: 10px 0;
+}
+.make-view .editor-toolbar {
+  grid-column: 1 / 4;
+  display: grid;
+  grid-template-columns: auto 123px 123px;
+  grid-gap: 10px;
+}
+.make-view .editor-toolbar h3 {
+  margin: 0;
+}
+
+.make-view .pages {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.make-view .page-editor {
+  margin: 0 auto;
+  width: 100%;
+}
+.make-view .page-editor .quiz {
+  background-color: white;
+  padding: 2ch;
+}
+  
+  
+
+@media screen and (max-width: 800px) {
+  .make-view {
+    display: flex;
+    flex-direction: column;
+  }
+  .make-view .editor-toolbar {
+    grid-template-columns: auto auto auto;
+  }
+}

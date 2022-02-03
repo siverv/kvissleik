@@ -1,6 +1,6 @@
 import { untrack } from "solid-js";
 
-function sanitizeInlineHTML(html){
+export function sanitizeInlineHTML(html){
   let parser = new DOMParser();
   let dom = parser.parseFromString(html, "text/html");
   function createElement(tagName){
@@ -44,7 +44,7 @@ function sanitizeInlineHTML(html){
 }
 
 
-export function RichtextInput({signal: [html, setHtml]}){
+export function RichtextInput({signal: [html, setHtml], ...props}){
   const onInput = (ev) => {
     let rawContent = ev.target.innerHTML;
     let sanitized = sanitizeInlineHTML(rawContent);
@@ -54,7 +54,7 @@ export function RichtextInput({signal: [html, setHtml]}){
     setHtml(sanitized);
   };
   return <div
-    className="input richtext-input"
+    class={["input richtext-input"].concat(props.class||[]).filter(Boolean).join(" ")}
     contenteditable
     onInput={onInput}
     innerHTML={untrack(html)}
@@ -62,12 +62,12 @@ export function RichtextInput({signal: [html, setHtml]}){
 }
 
 
-export function PlaintextInput({signal: [text, setText]}){
+export function PlaintextInput({signal: [text, setText], ...props}){
   const onInput = (ev) => {
     setText(ev.target.innerText);
   };
   return <div
-    className="input plaintext-input"
+    class={["input plaintext-input"].concat(props.class||[]).filter(Boolean).join(" ")}
     contenteditable
     onInput={onInput}
     innerText={untrack(text)}

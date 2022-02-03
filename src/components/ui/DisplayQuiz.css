@@ -1,0 +1,107 @@
+.quiz {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: min-content auto min-content;
+}
+
+.quiz .quiz-question {
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5ch 1ch;
+}
+
+.quiz .quiz-body {
+  display: grid;
+  grid-template-columns: 100px minmax(auto, 420px) 100px;
+  margin: auto;
+}
+
+.quiz .quiz-figure {
+  background-color: var(--theme-mg);
+  /* width: calc(400px + 10px); */
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz .quiz-alternatives {
+  display: grid;
+  grid-template-columns: minmax(auto, 200px) minmax(auto, 200px);
+  grid-template-rows: minmax(100px, auto) minmax(100px, auto);
+  grid-gap: 10px;
+  margin: auto;
+}
+
+.quiz .quiz-alternative {
+  padding: 1ch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fira Sans";
+  font-weight: bold;
+}
+
+.quiz .quiz-alternative .inner {
+  padding: 0.5ch 1ch;
+  width: calc(100% - 2ch);
+  height: calc(100% - 1ch);
+  max-width: calc(100% - 2ch);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff9;
+  word-break: break-all;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  flex-grow: 1;
+}
+
+.quiz button.quiz-alternative {
+  border: none;
+  box-shadow: inset -5px -5px  0 rgba(0,0,0,0.2), inset 5px 5px 0 rgba(255,255,255,0.2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+.quiz button.quiz-alternative:active {
+  box-shadow: inset 5px 5px  0 rgba(0,0,0,0.2), inset -5px -5px 0 rgba(255,255,255,0.2);
+}
+
+.quiz .quiz-alternative:nth-child(1) {
+  background-color: var(--theme-a)
+}
+
+.quiz .quiz-alternative:nth-child(2) {
+  background-color: var(--theme-b)
+}
+
+.quiz .quiz-alternative:nth-child(3) {
+  background-color: var(--theme-c)
+}
+
+.quiz .quiz-alternative:nth-child(4) {
+  background-color: var(--theme-d)
+}
+
+.quiz[data-answered]:not([data-validated]) .quiz-alternative[data-answer] {
+  border: 10px dashed var(--theme-fg);
+}
+
+.quiz[data-answered]:not([data-validated]) .quiz-alternative:not([data-answer]) {
+  opacity: 0.5;
+}
+
+.quiz[data-validated] .quiz-alternative[data-correct] {
+  border: 10px dashed var(--theme-correct);
+}
+
+.quiz[data-answered][data-validated]  .quiz-alternative[data-answer]:not([data-correct]) {
+  border: 10px dashed var(--theme-incorrect);
+}
+
+.quiz[data-answered][data-validated] .quiz-alternative:not([data-answer]):not([data-correct]) {
+  opacity: 0.5;
+}

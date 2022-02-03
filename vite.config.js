@@ -10,10 +10,10 @@ export default defineConfig({
         "name": "Kvissleik",
         "short_name": "Kvissleik",
         "display": "standalone",
-        "background_color": "#22334A",
-        "description": "Quiz web-app using Solid Pods and WebRTC"
+        "background_color": "#FFFFFF",
+        "description": "Quiz web-app using SolidJS and WebRTC."
       }
-    })
+    }),
   ],
   build: {
     target: "esnext",

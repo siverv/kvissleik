@@ -1,0 +1,30 @@
+
+.host-view .entry-group.select-quiz select {
+    width: 100%;
+    margin: 0 -1px;
+    border: 2px solid #000;
+    text-align: center;
+    color: black;
+}
+
+.host-view .entry-group.maxParticipants input {
+    width: 100%;
+    font-size: 1.5em;
+    margin: 0 -1px;
+    border: 2px solid #000;
+    text-align: center;
+    color: black;
+    border: none;
+    border-bottom: 2px solid #000;
+}
+
+
+.host-view .host-button {
+    margin: 0 auto;
+    padding: 0.5em 1em;
+    font-size: 3em;
+    border: 2px solid #000;
+    text-align: center;
+    color: black;
+    border-radius: 3px;
+}

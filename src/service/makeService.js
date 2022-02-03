@@ -10,6 +10,7 @@ const defaultQuiz = {
 const defaultQuizTask = {
   question: "Question?",
   image: null,
+  correct: "A",
   alternativeA: "a",
   alternativeB: "b",
   alternativeC: "c",
@@ -49,6 +50,84 @@ export function loadQuiz([,setQuiz]) {
       setQuiz(newQuiz());
     } catch(err){
       console.error("Could not load quiz", {quiz});
+    }
+  }
+}
+
+
+export function hasSavedQuiz(){
+  return !!localStorage.getItem(SAVE_KEY);
+}
+
+
+const dummyQuiz = {
+  id: "the-dummy-quiz",
+  questions: [
+    {
+      id: 1,
+      text: "Question 1",
+      correctAlternativeId: "A",
+      alternatives: [
+        {id: "A", text: "A"},
+        {id: "B", text: "B"},
+        {id: "C", text: "C"},
+        {id: "D", text: "D"},
+      ]
+    },
+    {
+      id: 2,
+      text: "Question 2",
+      correctAlternativeId: "B",
+      alternatives: [
+        {id: "A", text: "A"},
+        {id: "B", text: "B"},
+        {id: "C", text: "C"},
+        {id: "D", text: "D"},
+      ]
+    },
+    {
+      id: 3,
+      text: "Question 3",
+      correctAlternativeId: "C",
+      alternatives: [
+        {id: "A", text: "A"},
+        {id: "B", text: "B"},
+        {id: "C", text: "C"},
+        {id: "D", text: "D"},
+      ]
+    }
+  ]
+};
+
+export function loadQuizInHostableFormat(type){
+  if(type !== "SAVED"){
+    return dummyQuiz;
+  }
+  let rawQuiz = localStorage.getItem(SAVE_KEY);
+  if(rawQuiz){
+    try {
+      let quiz = JSON.parse(rawQuiz);
+      return {
+        id: "that-one-saved-quiz",
+        name: quiz.name,
+        questions: quiz.content.map((q, index) => {
+          return {
+            id: "question-" + index,
+            text: q.question,
+            image: q.image,
+            correctAlternativeId: q.correct,
+            alternatives: [
+              {id: "A", text: q.alternativeA},
+              {id: "B", text: q.alternativeB},
+              {id: "C", text: q.alternativeC},
+              {id: "D", text: q.alternativeD},
+            ]
+          };
+        })
+      };
+    } catch(err){
+      console.error("Could not load quiz", {rawQuiz});
+      return dummyQuiz;
     }
   }
 }

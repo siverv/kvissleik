@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 135.467 135.467">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 135.467 135.467">
 <style>
 .triangle {
   fill: none;
   fill-opacity:1;
   stroke:#000;
-  stroke-width:0;
+  stroke-width:0.65;
   stroke-linecap:butt;
   stroke-linejoin:miter;
   stroke-miterlimit:5;

@@ -2,6 +2,7 @@ import { render } from "solid-js/web";
 import { registerSW } from 'virtual:pwa-register';
 
 import "./style/main.css";
+import "./style/fira-sans.css";
 import {App} from "./App";
 
 render(App, document.getElementById("root"));
