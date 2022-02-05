@@ -1,79 +1,68 @@
-import { TabButton, TabPanel, useTabSystem } from "./components/Tab";
-import { HostView } from "./views/Host";
-import { MakeView } from "./views/Make";
-import { PlayView } from "./views/Play";
-import { DemoView } from "./views/Demo";
-import logo from './assets/header-logo.svg';
-import logo2 from './assets/footer-logo.svg';
-import { magicObject } from "./utils/swUtils";
-import { createSignal, Match } from "solid-js";
+import headerLogo from './assets/header-logo.svg';
+import footerLogo from './assets/footer-logo.svg';
+import { updateReadySignal } from "./utils/swUtils";
+import { Link } from "solid-app-router";
+import { AppRoutes } from './routes';
+
 
 export function App(){
-  let tabSignal = useTabSystem("tab", "play");
-  let [updateReady, setUpdateReady] = createSignal(null);
-  magicObject.setUpdateReady = setUpdateReady;
-  if(magicObject.applyUpdate){
-    setTimeout(() => setUpdateReady(true), 0);
-  }
+  let [updateReady, setUpdateReady] = updateReadySignal;
   return <div class="app">
     <header class="app-header">
       <Show when={updateReady()}>
-        <section>
-          New version is available. <button onClick={() => magicObject.applyUpdate()}>update</button>
+        <section class="new-version">
+          New version is available. <button onClick={() => (updateReady().apply(), setUpdateReady(null))}>update</button>
         </section>
       </Show>
       <div class="app-logo">
-        <img src={logo} alt="" class="logo"/>
+        <img src={headerLogo} alt="" class="logo"/>
       </div>
       <h1 class="title">
-        Kvissleik
+        <Link class="title-link" href="/">
+          Kvissleik
+        </Link>
       </h1>
       <nav class="app-nav">
-        <TabButton tab={"play"} tabSignal={tabSignal}>
+        <Link class="nav-link" href="/play">
           play
-        </TabButton>
-        <TabButton tab={"host"} tabSignal={tabSignal}>
+        </Link>
+        <Link class="nav-link" href="/host">
           host
-        </TabButton>
-        <TabButton tab={"make"} tabSignal={tabSignal}>
+        </Link>
+        <Link class="nav-link" href="/make">
           make
-        </TabButton>
+        </Link>
         <div style="flex-grow: 1"></div>
-        <TabButton tab={"config"} tabSignal={tabSignal}>
+        <Link class="nav-link" href="/config">
           config
-        </TabButton>
+        </Link>
+        {/*<Link class="nav-link" href="/test">
+          testbed
+        </Link>*/}
       </nav>
     </header>
     <main class="app-main">
-      <Switch>
-        <Match when={false}>
-          <DemoView/>
-        </Match>
-        <TabPanel tab={"play"} tabSignal={tabSignal}>
-          <PlayView/>
-        </TabPanel>
-        <TabPanel tab={"host"} tabSignal={tabSignal}>
-          <HostView/>
-        </TabPanel>
-        <TabPanel tab={"make"} tabSignal={tabSignal}>
-          <MakeView/>
-        </TabPanel>
-        <TabPanel tab={"config"} tabSignal={tabSignal}>
-          <>Not yet implemented</>
-        </TabPanel>
-      </Switch>
+      <AppRoutes/>
     </main>
     <footer class="app-footer">
       <div class="app-logo">
-        <img src={logo2} alt="" class="logo"/>
+        <img src={footerLogo} alt="" class="logo"/>
       </div>
-      <div>
+      <nav>
         <a href="https://github.com/siverv/">
           siverv
         </a>
         {` | `} 
         <span>2022</span>
-      </div>
+        {` | `} 
+        <Link class="nav-link" href="/about">
+          about
+        </Link>
+        {` | `} 
+        <a href="https://git.kvissleik.no">
+          git
+        </a>
+      </nav>
     </footer>
   </div>;
 }

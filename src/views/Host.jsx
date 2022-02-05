@@ -2,12 +2,14 @@ import { QuizHostView } from "../components/quiz/QuizHostView";
 import {batch, createSignal} from 'solid-js';
 import {createHostedRoom} from '../service/p2pService';
 import { createDummyQuiz } from "../service/makeService";
-import { createQuizCollection } from "../service/storageService";
-import "./View.css";
+import { getQuizCollection } from "../service/storageService";
+import {useSearchParams} from 'solid-app-router';
+import "../style/views.css";
 import "./Host.css";
 
-export function HostView(){
-  let quizCollection = createQuizCollection();
+export function Host(){
+  const [searchParams] = useSearchParams();
+  let quizCollection = getQuizCollection();
   let [room, setRoom] = createSignal(null);
   let [quiz, setQuiz] = createSignal(null);
   let [numNote, setNumNote] = createSignal(null);
@@ -54,7 +56,7 @@ export function HostView(){
         <form onSubmit={onSubmit}>
           <div class="entry-group select-quiz">
             <label class="label" htmlFor="selectedQuiz">What do you want to play today?</label>
-            <select id="selectedQuiz" name="selectedQuiz" value={localStorage.getItem("previousQuiz")}>
+            <select id="selectedQuiz" name="selectedQuiz" value={searchParams.quizId || localStorage.getItem("previousQuiz")}>
               <For each={quizCollection.list()} fallback={<option value="DEFAULT">
                 The dummy quiz
               </option>}>

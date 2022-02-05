@@ -47,15 +47,17 @@ export function QuizEditor({quiz: originalQuiz, saveQuiz, goBack}){
     setSaved(true);
   };
   return <section class="quiz-editor">
-    <button onClick={() => {
-      if(!saved()){
-        let ok = confirm("Are you sure you want to go back with unsaved changes?");
-        if(!ok){
-          return;
+    <Show when={goBack}>
+      <button onClick={() => {
+        if(!saved()){
+          let ok = confirm("Are you sure you want to go back with unsaved changes?");
+          if(!ok){
+            return;
+          }
         }
-      }
-      goBack();
-    }}>back</button>
+        goBack();
+      }}>back</button>
+    </Show>
     <header class="editor-toolbar">
       <h3>
         <PlaintextInput class="quiz-name" getValue={() => store.quiz.name} setValue={(name) => setStore("quiz", "name", name)}/>

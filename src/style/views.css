@@ -1,0 +1,96 @@
+
+
+.view {
+    padding: 2em 1em;
+    margin: 3em 0;
+}
+
+
+.view .section {
+  max-width: 800px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.view .section:not(:first-child) {
+  padding-top: 3em;
+}
+
+.view .section .section-header {
+  border-bottom: var(--default-border);
+}
+
+.view.view-section {
+    max-width: 800px;
+    margin:  0 auto;
+}
+
+.view form {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.view .entry-group {
+    display: grid;
+    grid-template-columns: minmax(auto, 200px) calc(4 * 1.5 * 3em + 4 * 10px) minmax(auto, 200px);
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2em;
+}
+
+.view .entry-group .label {
+    text-align: right;
+    margin-right: 20px;
+}
+
+.view .entry-group .options {
+    text-align: left;
+    margin-left: 20px;
+}
+
+@media screen and (max-width: 800px) {
+    .view .entry-group {
+        display: grid;
+        grid-template-columns: auto;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2em;
+    }
+    .view .entry-group .label {
+        text-align: left;
+        margin-right: 20px;
+    }
+    
+    .view .entry-group .options {
+        text-align: right;
+        margin-left: 20px;
+    }
+}
+
+.view .entry-group .options button {
+    border: none;
+    background-color: inherit;
+    color: inherit;
+    cursor: pointer;
+    margin: 2em;
+}
+.view .entry-group .options button[data-active]::after {
+    content: " ▼"
+}
+.view .entry-group .options button::after {
+    content: " ▶"
+}
+
+.view .entry-group .options button:hover {
+  text-decoration: underline;
+}
+
+.view .entry-group .note {
+    text-decoration: underline;
+    font-family: "Fira Sans";
+    color: var(--theme-d-dark);
+    text-decoration-style: wavy;
+    margin: 0.5em 0;
+}

@@ -14,23 +14,9 @@
   margin-right: 10px;
   flex-basis:  150px;
 }
+.make-view .local-section .button-link,
 .make-view .local-section button {
   margin-right: 10px;
-}
-
-.make-view > .section {
-  max-width: 800px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.make-view > .section:not(:first-child) {
-  padding-top: 3em;
-}
-
-.make-view .section-header {
-  border-bottom: var(--default-border);
 }
 
 .make-view .create-new-quiz {

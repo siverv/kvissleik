@@ -12,11 +12,15 @@ export function DisplayQuiz({question, getAnswer, correct, countdown, details, s
       </figure>
     </Show>
   );
-  Alternative = Alternative ?? (({index: _, ...props}) => <div {...props}/>);
+  Alternative = Alternative ?? (({index: _, ...props}) => <div
+    //data-answer={typeof props["data-answer"] === "function" ? props["data-answer"]() : props["data-answer"]}
+    data-correct={typeof props["data-correct"] === "function" ? props["data-correct"]() : props["data-correct"]}
+    {...props}
+  />);
   let total = Array.from(statistics?.values()||[]).reduce((a,b) => a+b,0);
   return <article class="quiz"
     data-answered={createMemo(() => getAnswer?.() ? "yes" : undefined)()}
-    data-validated={correct}
+    data-validated={typeof correct === "function" ? correct() : correct}
     data-statistics={statistics ? "yes" : undefined}
     data-scored={createMemo(() => getScore && getScore() ? "yes" : undefined)()}
     style={createMemo(() => []
@@ -45,7 +49,7 @@ export function DisplayQuiz({question, getAnswer, correct, countdown, details, s
               class="quiz-alternative"
               index={index}
               data-answer={getAnswer?.() == alt.id ? "yes" : undefined}
-              data-correct={correct == alt.id ? "yes" : undefined}
+              data-correct={createMemo(() => (typeof correct === "function" ? correct() : correct) == alt.id ? "yes" : undefined)}
               data-stats={stats !== undefined ? stats : undefined}
               style={stats !== undefined ? "--stats:"+stats : undefined}
             >

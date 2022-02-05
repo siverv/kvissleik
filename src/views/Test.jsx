@@ -1,16 +1,10 @@
 import {createNewQuestion} from '../service/makeService';
 import {DisplayQuiz} from '../components/ui/DisplayQuiz';
-import "./View.css";
-import './Play.css';
+import "../style/views.css";
 
-export function DemoView(){
+export function Test(){
   const question = createNewQuestion();
-  let statistics = new Map()
-    .set(question.alternatives[0].id, 5)
-    .set(question.alternatives[1].id, 2)
-    .set(question.alternatives[2].id, 7)
-    .set(question.alternatives[3].id, 0);
-  return <div class="view play-view">
+  return <div class="view test-view">
     <DisplayQuiz
       question={question}
     />

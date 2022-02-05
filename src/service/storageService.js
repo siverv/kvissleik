@@ -19,7 +19,7 @@ function loadJson(key){
 export const COLLECTION_KEY = "QUIZ_COLLECTION";
 export const centralizedCollectionSignal = createSignal(new Map(loadJson(COLLECTION_KEY)));
 
-export function createQuizCollection(){
+export function getQuizCollection(){
   const [collection, setCollection] = centralizedCollectionSignal;
   function updateCollection(collection) {
     saveJson(COLLECTION_KEY, Array.from(collection));

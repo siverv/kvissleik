@@ -1,10 +1,10 @@
 import { QuizPlayView } from "../components/quiz/QuizPlayView";
 import {createSignal} from "solid-js";
 import {createJoinedRoom} from '../service/p2pService';
-import "./View.css";
+import "../style/views.css";
 import './Play.css';
 
-export function PlayView(){
+export function Play(){
   const [room, setRoom] = createSignal(null);
   const [nameNote, setNameNote] = createSignal(null && "Name needs to be between 1 and 20 characters");
   const [codeNote, setCodeNote] = createSignal(null && "No room by this code");

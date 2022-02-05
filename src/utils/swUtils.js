@@ -1,5 +1,4 @@
 
+import {createSignal} from 'solid-js';
 
-export const magicObject = {
-  setUpdateReady: () => {},
-};
+export const updateReadySignal = createSignal(null);
