@@ -1,6 +1,6 @@
 import { createMemo, useContext } from 'solid-js';
 import { JoinedQuizController } from '../../service/playService';
-import { ControllerContext, Durations, QuizState } from '../../utils/controllerUtils';
+import { ControllerContext, QuizState } from '../../utils/controllerUtils';
 import { DisplayQuiz } from '../ui/DisplayQuiz';
 
 
@@ -29,7 +29,7 @@ const StateViews = {
       Alternative={(props) => <button {...props}
         disabled={getAnswer() || undefined}
         onClick={() => {
-          ctrl.setAnswer(props["data-id"]);
+          ctrl.setAnswer(question.alternatives[props.index()].id);
         }}
       />}
       countdown={<>{Math.floor(ctrl.countdown / 1000)}</>}
@@ -41,18 +41,18 @@ const StateViews = {
     return <DisplayQuiz
       question={question}
       getAnswer={createMemo(() => ctrl.answerMap.get(ctrl.state.data.questionId))}
-      correct={question.correctAlternativeId}
+      correct={question.correct}
     />;
   },
   [QuizState.STATISTICS]: function QuizPlayView_Statistics(){
     const ctrl = useContext(ControllerContext);
-    return <article class="quiz quiz-play state--statistics">
-      <h4>
-        You have {ctrl.score.total}. <br/>
-        You got {ctrl.score.added}. <br/>
-        Your position is {ctrl.score.position}.
-      </h4>
-    </article>;
+    const question = ctrl.quiz.questions.find(q => q.id === ctrl.state.data.questionId);
+    return <DisplayQuiz
+      question={question}
+      getAnswer={createMemo(() => ctrl.answerMap.get(ctrl.state.data.questionId))}
+      correct={question.correct}
+      getScore={createMemo(() => ctrl.score.questionId == ctrl.state.data.questionId ? ctrl.score : undefined)}
+    />;
   },
   [QuizState.RESULTS]: function QuizPlayView_Results(){
     const ctrl = useContext(ControllerContext);
@@ -63,6 +63,7 @@ const StateViews = {
       <h4>
         {ctrl.score.total}
       </h4>
+
     </article>;
   },
   [QuizState.THE_END]: function QuizPlayView_TheEnd(){

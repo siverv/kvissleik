@@ -1,55 +1,52 @@
 
-.make-view .quiz-name {
-  font-size: 1.5em;
-  margin: 0 -1px;
-  padding: 0.5ch 1ch;
-  margin: 0;
-  background-color: var(--theme-bg);
-  color: var(--theme-fg);
-  border: none;
-  border-bottom: 2px solid var(--theme-fg);
+
+.make-view .local-section ul li {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 10px;
+}
+.make-view .local-section .quiz-name {
+  margin-right: 10px;
+  flex-grow: 1;
+}
+.make-view .local-section .quiz-info {
+  margin-right: 10px;
+  flex-basis:  150px;
+}
+.make-view .local-section button {
+  margin-right: 10px;
 }
 
-.make-view {
-  display: grid;
-  grid-template-columns: 256px calc(100% - 512px) 256px; 
-  grid-template-rows: min-content 768px;
-  grid-gap: 10px;
-  padding: 10px 0;
-}
-.make-view .editor-toolbar {
-  grid-column: 1 / 4;
-  display: grid;
-  grid-template-columns: auto 123px 123px;
-  grid-gap: 10px;
-}
-.make-view .editor-toolbar h3 {
-  margin: 0;
-}
-
-.make-view .pages {
+.make-view > .section {
+  max-width: 800px;
+  margin: auto;
   display: flex;
   flex-direction: column;
-  overflow: auto;
 }
 
-.make-view .page-editor {
+.make-view > .section:not(:first-child) {
+  padding-top: 3em;
+}
+
+.make-view .section-header {
+  border-bottom: var(--default-border);
+}
+
+.make-view .create-new-quiz {
   margin: 0 auto;
-  width: 100%;
+  padding: 0.5em 1em;
+  font-size: 2em;
+  border: var(--default-border);
+  text-align: center;
+  color: black;
+  border-radius: 3px;
 }
-.make-view .page-editor .quiz {
-  background-color: white;
-  padding: 2ch;
-}
-  
   
 
 @media screen and (max-width: 800px) {
   .make-view {
     display: flex;
     flex-direction: column;
-  }
-  .make-view .editor-toolbar {
-    grid-template-columns: auto auto auto;
   }
 }

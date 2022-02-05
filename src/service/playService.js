@@ -26,7 +26,11 @@ export class JoinedQuizController {
   handleMessage(type, payload) {
     if(type === "STATE") {
       batch(() => {
-        const {name, data} = this.state = payload;
+        let {name, data} = payload;
+        if([QuizState.ALTERNATIVES, QuizState.VALIDATION, QuizState.STATISTICS].includes(name)){
+          data = {...this.state.data, ...data};
+        }
+        this.state = {name, data};
         let quiz = this.quiz;
         if(name === QuizState.QUESTION) {
           let question = {
@@ -58,7 +62,7 @@ export class JoinedQuizController {
               if(q.id === data.questionId){
                 return {
                   ...q,
-                  correctAlternativeId: data.validation.correctAlternativeId
+                  correct: data.validation.correct
                 };
               } else return q;
             })
@@ -80,7 +84,8 @@ export class JoinedQuizController {
       this.score = {
         total,
         added,
-        position
+        position,
+        questionId: this.state.data.questionId
       };
     } else if(type === "RESULTS") {
       const {position, total} = payload;
@@ -92,7 +97,6 @@ export class JoinedQuizController {
   }
 
   setAnswer(alternativeId){
-    console.log("alt", alternativeId, this.state.name);
     if(this.state.name === QuizState.ALTERNATIVES && !this.hasAnsweredThisQuestion()) {
       this.answerMap = new Map(this.answerMap).set(this.state.data.questionId, alternativeId);
       this.room.toHost("SET_ANSWER", {alternativeId});

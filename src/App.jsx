@@ -2,13 +2,26 @@ import { TabButton, TabPanel, useTabSystem } from "./components/Tab";
 import { HostView } from "./views/Host";
 import { MakeView } from "./views/Make";
 import { PlayView } from "./views/Play";
+import { DemoView } from "./views/Demo";
 import logo from './assets/header-logo.svg';
 import logo2 from './assets/footer-logo.svg';
+import { magicObject } from "./utils/swUtils";
+import { createSignal, Match } from "solid-js";
 
 export function App(){
   let tabSignal = useTabSystem("tab", "play");
+  let [updateReady, setUpdateReady] = createSignal(null);
+  magicObject.setUpdateReady = setUpdateReady;
+  if(magicObject.applyUpdate){
+    setTimeout(() => setUpdateReady(true), 0);
+  }
   return <div class="app">
     <header class="app-header">
+      <Show when={updateReady()}>
+        <section>
+          New version is available. <button onClick={() => magicObject.applyUpdate()}>update</button>
+        </section>
+      </Show>
       <div class="app-logo">
         <img src={logo} alt="" class="logo"/>
       </div>
@@ -33,6 +46,9 @@ export function App(){
     </header>
     <main class="app-main">
       <Switch>
+        <Match when={false}>
+          <DemoView/>
+        </Match>
         <TabPanel tab={"play"} tabSignal={tabSignal}>
           <PlayView/>
         </TabPanel>

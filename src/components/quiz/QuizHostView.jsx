@@ -48,10 +48,13 @@ const StateViews = {
   [QuizState.VALIDATION]: function QuizHostView_Validation(){
     const ctrl = useContext(ControllerContext);
     const question = ctrl.quiz.questions.find(q => q.id === ctrl.state.data.questionId);
+    const statistics = Array.from(ctrl.questionStateMap.get(question.id)?.values())
+      .reduce((map, {answer}) => map.set(answer, (map.get(answer)||0) + 1), new Map());
     return <>
       <DisplayQuiz
         question={{...question}}
-        correct={question.correctAlternativeId}
+        correct={question.correct}
+        statistics={statistics}
       />
       <button onClick={() => ctrl.showStatistics()}>
         show statistics
@@ -73,7 +76,18 @@ const StateViews = {
     </article>;
   },
   [QuizState.RESULTS]: function QuizHostView_Results(){
-    return <pre>results</pre>;
+    const ctrl = useContext(ControllerContext);
+    return <article class="quiz-results">
+      <ol>
+        <For each={Array.from(ctrl.getResultList())}>
+          {([id, score]) => {
+            return <li>
+              {ctrl.getParticipantName(id)}, with a score of {score}
+            </li>;
+          }}
+        </For>
+      </ol>
+    </article>;
   },
   [QuizState.THE_END]: function QuizHostView_TheEnd(){
     return <pre>the end</pre>;

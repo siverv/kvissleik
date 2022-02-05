@@ -6,9 +6,6 @@ class ClientPeer {
     this.room = room;
     addSignal(this, "connected", false);
     addSignal(this, "data", {type: "NOOP"}, {equals: false});
-    observable(this.data$).subscribe((data) => {
-      console.log("test", data);
-    });
   }
 
   connect(initiator){
@@ -43,13 +40,12 @@ class ClientPeer {
   }
 
   _onSignal = this.onSignal.bind(this);
-  onSignal(signal){
-    console.debug("signal", this, signal);
+  onSignal(_signal){
+    // noop;
   }
 
   _onData = this.onData.bind(this);
   onData(data){
-    console.debug("data", this, data.toString());
     try {
       const {type, payload} = JSON.parse(data.toString());
       this.data = {type, payload};
@@ -136,7 +132,6 @@ class ClientRoom {
 
   _onClose = this.onClose.bind(this);
   onClose(){
-    console.debug("room closed");
     this.webSocket = null;
     this.connected = false;
   }
@@ -145,7 +140,6 @@ class ClientRoom {
   onMessage(message){
     try {
       let {type, payload} = JSON.parse(message.data);
-      console.debug("incoming", type, payload);
       this.handleMessage(type, payload);
     } catch(e) {
       console.error(e);
@@ -157,7 +151,6 @@ class ClientRoom {
   }
 
   send(type, payload) {
-    console.debug("outgoing", type, payload);
     this.webSocket.send(JSON.stringify({
       type,
       payload
@@ -296,7 +289,6 @@ export class JoinedRoom extends ClientRoom {
       const {reason} = payload;
       this.roomState = JoinedRoom.RoomStates.DENIED;
       this.deniedForReason = reason;
-      console.log("request to join denied", reason);
       break;
     }
     case "ROOM_JOINED": {
@@ -305,7 +297,6 @@ export class JoinedRoom extends ClientRoom {
       this.roomState = JoinedRoom.RoomStates.JOINED;
       this.roomType = type;
       this.host.connect();
-      console.log("room joined");
       break;
     }
     }

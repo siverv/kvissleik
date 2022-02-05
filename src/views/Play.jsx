@@ -56,6 +56,18 @@ export function PlayView(){
     sibling?.focus();
     sibling && setTimeout(() => sibling.select(), 5);
   };
+  const onPaste = (ev) => {
+    ev.preventDefault();
+    let paste = (ev.clipboardData || window.clipboardData).getData('text');
+    paste = paste.toUpperCase().replace(/\s+/g, "");
+    let node = document.getElementById("code-first-letter");
+    for(let i = 0; i < 4; i++){
+      node.value = paste[i];
+      node.focus();
+      node = node.nextSibling;
+    }
+  };
+
   return <div class="view play-view">
     <Switch>
       <Match when={room() === null || room()?.canJoinRoom()}>
@@ -63,10 +75,10 @@ export function PlayView(){
           <div class="entry-group code">
             <label class="label" htmlFor="code-first-letter">Enter the room code</label>
             <div class="code-entry-input">
-              <input autofocus={true} id="code-first-letter" name="code" onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} type="text" maxLength={1} placeholder="A"></input>
-              <input type="text" name="code" onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="B"></input>
-              <input type="text" name="code" onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="C"></input>
-              <input type="text" name="code" onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="D"></input>
+              <input autofocus={true} id="code-first-letter" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} type="text" maxLength={1} placeholder="A"></input>
+              <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="B"></input>
+              <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="C"></input>
+              <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="D"></input>
             </div>
             <div/>
             <div/>

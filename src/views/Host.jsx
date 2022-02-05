@@ -1,18 +1,21 @@
 import { QuizHostView } from "../components/quiz/QuizHostView";
 import {batch, createSignal} from 'solid-js';
 import {createHostedRoom} from '../service/p2pService';
-import { hasSavedQuiz, loadQuizInHostableFormat } from "../service/makeService";
+import { createDummyQuiz } from "../service/makeService";
+import { createQuizCollection } from "../service/storageService";
 import "./View.css";
 import "./Host.css";
 
 export function HostView(){
+  let quizCollection = createQuizCollection();
   let [room, setRoom] = createSignal(null);
   let [quiz, setQuiz] = createSignal(null);
   let [numNote, setNumNote] = createSignal(null);
+  let [quizNote, setQuizNote] = createSignal(null);
   function onSubmit(ev){
     ev.preventDefault();
     let formData = new FormData(ev.target);
-    let selectedQuiz = parseInt(formData.get("selectedQuiz"));
+    let selectedQuiz = formData.get("selectedQuiz");
     let maxParticipants = parseInt(formData.get("maxParticipants"));
     let numNote = null;
     if(isNaN(maxParticipants)){
@@ -22,14 +25,26 @@ export function HostView(){
     } else if(maxParticipants > 65000) {
       numNote = "I think there is a techincal limit around 65k somewhere...";
     }
+    let quiz, quizNote = null;
+    if(selectedQuiz === "DEFAULT"){
+      quiz = createDummyQuiz();
+    } else {
+      quiz = quizCollection.get(selectedQuiz);
+      console.log("quiz 2", quiz, selectedQuiz);
+      if(!quiz){
+        quizNote = "Could not find selected quiz. Try another?";
+      }
+    }
     setNumNote(numNote);
-    if(numNote){
+    setQuizNote(quizNote);
+    if(numNote || quizNote){
       return;
     }
     localStorage.setItem("previousNum", maxParticipants);
     localStorage.setItem("previousQuiz", selectedQuiz);
     batch(() => {
-      setQuiz(loadQuizInHostableFormat(selectedQuiz));
+      console.log("quiz", quiz);
+      setQuiz(quiz);
       setRoom(createHostedRoom({settings: {maxParticipants}}));
     });
   }
@@ -38,17 +53,23 @@ export function HostView(){
       <Match when={room() === null}>
         <form onSubmit={onSubmit}>
           <div class="entry-group select-quiz">
-            <label class="label" htmlFor="select-quiz">What do you want to play today?</label>
-            <select id="select-quiz" name="select-quiz" value={hasSavedQuiz() ? "SAVED" : "DEFAULT"}>
-              <option value="DEFAULT">
+            <label class="label" htmlFor="selectedQuiz">What do you want to play today?</label>
+            <select id="selectedQuiz" name="selectedQuiz" value={localStorage.getItem("previousQuiz")}>
+              <For each={quizCollection.list()} fallback={<option value="DEFAULT">
                 The dummy quiz
-              </option>
-              <Show when={hasSavedQuiz()}>
-                <option value="SAVED">
-                  The single saved quiz
-                </option>
-              </Show>
+              </option>}>
+                {(quiz) => {
+                  return <option value={quiz.id}>
+                    {quiz.name}
+                  </option>;
+                }}
+              </For>
             </select>
+            <div/>
+            <div/>
+            <b class="note">
+              {quizNote()}
+            </b>
           </div>
           <div class="entry-group maxParticipants">
             <label class="label" htmlFor="maxParticipants">How many is not yet too many?</label>

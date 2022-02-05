@@ -19,7 +19,6 @@
     "vite-plugin-solid": "^2.2.5"
   },
   "dependencies": {
-    "@fontsource/fira-sans": "^4.5.1",
     "simple-peer": "^9.11.0",
     "solid-js": "1.3.5"
   }

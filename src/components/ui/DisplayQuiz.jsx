@@ -1,26 +1,37 @@
 /* eslint-disable jsx-a11y/heading-has-content */
-import { sanitizeInlineHTML } from "./TextInput";
+import { sanitizeHTML } from "../../utils/textUtils";
 import "./DisplayQuiz.css";
+import { createMemo } from "solid-js";
 
-export function DisplayQuiz({question, getAnswer, correct, countdown, details, QuestionText, QuestionImage, Alternative}){
+export function DisplayQuiz({question, getAnswer, correct, countdown, details, statistics, getScore, QuestionText, QuestionImage, Alternative}){
   QuestionText = QuestionText ?? ((props) => <h3 {...props}/>);
-  QuestionImage = QuestionImage ?? (({image, alt}) =>
-    <Show when={question.image} fallback={<div/>}>
-      <figure>
-        <img src={image} alt={alt}/>
+  QuestionImage = QuestionImage ?? (({image}) =>
+    <Show when={image} fallback={<div/>}>
+      <figure class="quiz-figure">
+        <img src={image} alt=""/>
       </figure>
     </Show>
   );
-  Alternative = Alternative ?? ((props) => <div {...props}/>);
-  return <article class="quiz" data-answered={getAnswer?.() ? "yes" : undefined} data-validated={correct}>
+  Alternative = Alternative ?? (({index: _, ...props}) => <div {...props}/>);
+  let total = Array.from(statistics?.values()||[]).reduce((a,b) => a+b,0);
+  return <article class="quiz"
+    data-answered={createMemo(() => getAnswer?.() ? "yes" : undefined)()}
+    data-validated={correct}
+    data-statistics={statistics ? "yes" : undefined}
+    data-scored={createMemo(() => getScore && getScore() ? "yes" : undefined)()}
+    style={createMemo(() => []
+      .concat(statistics ? `--stats-total: ${total}` : [])
+      .concat(getScore && getScore() ? `--score-total: ${getScore().total}; --score-added: ${getScore().added}; --score-position: ${getScore().position}` : [])
+      .join("; "))()}
+  >
     <section class="quiz-question">
-      <QuestionText innerHTML={sanitizeInlineHTML(question.text)}/>
+      <QuestionText innerHTML={sanitizeHTML(question.text)}/>
     </section>
     <section class="quiz-body">
       <div class="quiz-timer">
         {countdown}
       </div>
-      <QuestionImage image={question.image} alt={question.text}/>
+      <QuestionImage image={question.image}/>
       <div class="quiz-stats">
         {details}
       </div>
@@ -28,18 +39,26 @@ export function DisplayQuiz({question, getAnswer, correct, countdown, details, Q
     <Show when={question.alternatives}>
       <section class="quiz-alternatives">
         <For each={question.alternatives}>
-          {alt => {
+          {(alt, index) => {
+            let stats = statistics?.get(alt.id);
             return <Alternative
               class="quiz-alternative"
-              data-id={alt.id}
+              index={index}
               data-answer={getAnswer?.() == alt.id ? "yes" : undefined}
               data-correct={correct == alt.id ? "yes" : undefined}
+              data-stats={stats !== undefined ? stats : undefined}
+              style={stats !== undefined ? "--stats:"+stats : undefined}
             >
-              <div class="inner" innerHTML={sanitizeInlineHTML(alt.text)}/>
+              <div class="inner" innerHTML={sanitizeHTML(alt.text)}/>
             </Alternative>;
           }
           }
         </For>
+      </section>
+    </Show>
+    <Show when={createMemo(() => getScore && getScore())()}>
+      <section class="quiz-score">
+        With a total of <b>{getScore().total}</b> points, you are <b>#{getScore().position}</b>.
       </section>
     </Show>
   </article>;

@@ -22,11 +22,13 @@
   --theme-btn: rgb(233, 233, 237);
   --theme-btn-light: rgb(243, 243, 247);
   --theme-btn-dark: rgb(208, 208, 215);
+
+  --default-border: 2px solid black;
 }
 
 button {
   background-color: var(--theme-btn);
-  border: 2px solid var(--theme-fg);
+  border: var(--default-border);
   cursor: pointeR;
 }
 
@@ -45,6 +47,8 @@ body {
   background-color: var(--theme-bg);
   font-family: "Fira Sans";
   font-weight: 400;
+  color: var(--theme-fg);
+  background-color:  var(--theme-bg);
 }
 
 .app {

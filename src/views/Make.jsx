@@ -1,71 +1,104 @@
-import { batch, createSignal, For } from "solid-js";
-import { Keyed } from "../components/meta/Keyed";
-import { QuizEditView } from "../components/quiz/QuizEditView";
-import { QuizThumbnail } from "../components/quiz/QuizThumbnail";
-import { PlaintextInput } from "../components/ui/TextInput";
-import { addQuizTask, createQuiz, loadQuiz, saveQuiz } from "../service/makeService";
+import { createSignal, For, Switch, createMemo } from "solid-js";
+import { createQuizCollection } from "../service/storageService";
+import { duplicateQuiz, createQuiz } from "../service/makeService";
+import { QuizEditor } from '../components/quiz/QuizEditor';
+import { DisplayQuiz } from '../components/ui/DisplayQuiz';
 import "./View.css";
 import "./Make.css";
 
+
 export function MakeView(){
-  const [currentPage, setCurrentPage] = createSignal(null);
-  const [quiz, setQuiz] = createQuiz();
-  const newPage = () => {
-    batch(() => {
-      let index = addQuizTask([quiz, setQuiz]);
-      setCurrentPage(index);
-    });
-  };
-  const save = () => saveQuiz([quiz]);
-  const load = () => batch(() => {
-    loadQuiz([quiz,setQuiz]);
-    setCurrentPage(0);
-  });
-  return <section class="view make-view quiz-editor">
-    <header class="editor-toolbar">
-      <h3>
-        <Keyed key={() => quiz()}>
-          {(_) => <PlaintextInput class="quiz-name" signal={quiz().name}/>}
-        </Keyed>
-      </h3>
-      <button onClick={save}>save</button>
-      <button onClick={load}>load</button>
-    </header>
-    <aside class="pages">
-      <button class="new-page" onClick={() => newPage(null)}>
-        <div class="page-thumbnail">
-          Add question
-        </div>
-      </button>
-      <For each={quiz().content}>
-        {([quizTask], index) => {
-          return <button class="select-page" onClick={() => setCurrentPage(index)}>
-            <div class="page-thumbnail">
-              <span style="float: left">
-                {index() + 1}.
-              </span>
-              <QuizThumbnail quizTask={quizTask}/>
-            </div>
-          </button>;
-        }}
-      </For>
-    </aside>
-    <section class="page-editor">
-      <Show when={currentPage() != null && quiz().content[currentPage()]}>
-        <Keyed key={() => quiz().content[currentPage()]}>
-          {(signal) => <QuizEditView quizTaskSignal={signal}/>}
-        </Keyed>
-      </Show>
-      {/* <Show when={currentPage() == null}>
-        <button class="new-page" onClick={newPage}>
-          <div class="page-thumbnail">
-            New Quiz Task
+  let collection = createQuizCollection();
+  let [editingQuiz, setEditingQuiz] = createSignal(null);
+  let [viewingQuiz, setViewingQuiz] = createSignal(null);
+  let [importError, setImportError] = createSignal(null);
+  return <section class="view make-view">
+    <Switch>
+      <Match when={editingQuiz() == null && viewingQuiz() == null}>
+        <section class="section">
+          <button type="button" class="create-new-quiz" onClick={() => setEditingQuiz(createQuiz())}>create a new quiz</button>
+        </section>
+        <section class="section local-section">
+          <h3 class="section-header">
+            Locally stored quizzes
+            {` `}
+            <span>
+              ({createMemo(() => Math.round(JSON.stringify(collection.list()).length / 1000))}kB)
+            </span>
+          </h3>
+          <ul>
+            <For each={collection.list()} fallback={<i>no quizzes stored.</i>}>
+              {(quiz) => {
+                let [copied, setCopied] = createSignal(false);
+                return <li>
+                  <b class="quiz-name">
+                    {quiz.name}
+                  </b>
+                  <span class="quiz-info">
+                    {quiz.questions.length} questions
+                    {` `}
+                    <span>
+                      ({createMemo(() => Math.round(JSON.stringify(quiz).length / 1000))}kB)
+                    </span>
+                  </span>
+                  <button type="button" onClick={() => setViewingQuiz(quiz)}>view</button>
+                  <button type="button" onClick={() => setEditingQuiz(quiz)}>edit</button>
+                  <button type="button" class="quiz-duplicate" onClick={() => {
+                    collection.store(duplicateQuiz(quiz));
+                  }}>duplicate</button>
+                  <button type="button" class="quiz-delete" onClick={() => collection.remove(quiz.id)}>
+                    delete
+                  </button>
+                  <button type="button" class="quiz-export" onClick={async () => {
+                    await navigator.clipboard.writeText(JSON.stringify(duplicateQuiz(quiz)));
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 5 * 1000);
+                  }}>{copied() ? "copied to clipboard!" : "export as json"}</button>
+                </li>;
+              }}
+            </For>
+          </ul>
+        </section>
+        <section class="section">
+          <h3 class="section-header">
+            Import from json
+          </h3>
+          <div class="entry-group name">
+            <label class="label" htmlFor="import-as-json">
+              Paste in quiz here:
+            </label>
+            <textarea id="import-as-json" placeholder="{...}"/>
+            <button onClick={() => {
+              try {
+                let textarea = document.getElementById("import-as-json");
+                let quizJson = JSON.parse(textarea.value);
+                collection.store(duplicateQuiz(quizJson));
+                textarea.innerText = "";
+              } catch(ex){
+                setImportError(ex.toString());
+              }
+            }}>import</button>
+            <div/>
+            <b class="note">
+              {importError}
+            </b>
           </div>
-        </button>
-      </Show> */}
-    </section>
-    <aside class="quiz-properties">
-      settings and adjustments
-    </aside>
+        </section>
+      </Match>
+      <Match when={editingQuiz() != null}>
+        <QuizEditor quiz={editingQuiz()} saveQuiz={(quiz) => collection.store(quiz)} goBack={() => setEditingQuiz(null)}/>
+      </Match>
+      <Match when={viewingQuiz() != null}>
+        <section class="section">
+          <button onClick={() => setViewingQuiz(null)}>back</button>
+          <h3 class="section-header">
+            {viewingQuiz().name}
+          </h3>
+          <For each={viewingQuiz().questions}>
+            {(question) => <><DisplayQuiz question={question}/><hr/></>}
+          </For>
+        </section>
+      </Match>
+    </Switch>
   </section>;
 }
