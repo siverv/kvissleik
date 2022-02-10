@@ -98,6 +98,9 @@ const StateViews = {
 export function QuizHostView({room, quiz}){
   const ctrl = new HostedQuizController(room, quiz);
   return <ControllerContext.Provider value={ctrl}>
+    <h3>
+      Room code: {room().roomCode}
+    </h3>
     <Switch>
       {Array.from(Object.entries(StateViews)).map(([stateName, Component]) => {
         return <Match when={ctrl.state.name === stateName}>

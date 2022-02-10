@@ -1,12 +1,15 @@
-import { Host } from "./views/Host";
+import { Host } from "./views/Host2";
 import { Make } from "./views/Make";
-import { Play } from "./views/Play";
+import { Play } from "./views/Play2";
 import { Test } from "./views/Test";
 import { Edit } from "./views/Edit";
 import { View } from "./views/View";
-import { About } from "./views/About";
 import { NotFound } from "./views/NotFound";
 import { Routes, Route } from "solid-app-router";
+import {lazy} from 'solid-js';
+
+// import { About } from "./views/About";
+const About = lazy(() => import("./views/About").About);
 
 export function AppRoutes(){
   return <Routes>

@@ -1,0 +1,69 @@
+.host-form .entry-group.select-quiz select {
+  width: 100%;
+  margin: 0 -1px;
+  border: var(--default-border);
+  text-align: center;
+  color: var(--theme-fg);
+}
+
+.host-form .entry-group.maxParticipants input {
+  width: 100%;
+  font-size: 1.5em;
+  margin: 0 -1px;
+  border: var(--default-border);
+  text-align: center;
+  color: black;
+  border: none;
+  border-bottom: var(--default-border);
+}
+
+
+.host-form .host-button {
+  margin: 0 auto;
+  padding: 0.5em 1em;
+  font-size: 3em;
+  border: var(--default-border);
+  text-align: center;
+  color: black;
+  border-radius: 3px;
+}
+
+
+
+.host-form .radio-group {
+  display: flex;
+}
+
+.host-form .radio-group .radio-group-button:nth-child(2) {
+    border-radius: 5px 0 0 5px;
+    margin-left: 0;
+}
+.host-form .radio-group .radio-group-button:last-child {
+    border-radius: 0 5px 5px 0;
+    margin-right: 0;
+}
+.host-form .radio-group .radio-group-button {
+    width: 100%;
+    margin: 0 -1px;
+    border: var(--default-border);
+    text-align: center;
+    color: black;
+    display:  flex;
+    align-items: center;
+    justify-content:  center;
+}
+.host-form .radio-group > input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  left: -10px;
+}
+
+.host-form .radio-group > input[type="radio"]:focus + .radio-group-button {
+  border: 2px solid var(--theme-a);
+  z-index: 1;
+}
+.host-form .radio-group > input[type="radio"]:checked + .radio-group-button {
+  background-color: var(--theme-btn);
+  text-decoration: underline;
+}

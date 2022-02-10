@@ -2,7 +2,6 @@
 
 .view {
     padding: 2em 1em;
-    margin: 3em 0;
 }
 
 
@@ -38,6 +37,7 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 2em;
+    grid-gap:  1ch;
 }
 
 .view .entry-group .label {

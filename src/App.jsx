@@ -6,7 +6,7 @@ import { AppRoutes } from './routes';
 
 
 export function App(){
-  let [updateReady, setUpdateReady] = updateReadySignal;
+  const [updateReady, setUpdateReady] = updateReadySignal;
   return <div class="app">
     <header class="app-header">
       <Show when={updateReady()}>
@@ -42,7 +42,18 @@ export function App(){
       </nav>
     </header>
     <main class="app-main">
-      <AppRoutes/>
+      <ErrorBoundary fallback={(error, reset) => {
+        return <>
+          <button onClick={reset}>
+            oops.
+          </button>
+          <pre>
+            {error}
+          </pre>
+        </>
+      }}>
+        <AppRoutes/>
+      </ErrorBoundary>
     </main>
     <footer class="app-footer">
       <div class="app-logo">

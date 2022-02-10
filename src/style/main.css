@@ -63,7 +63,7 @@ body {
 .app {
   display: grid;
   grid-template-columns: 100%;
-  grid-template-rows: min-content minmax(300px, auto) 100px;
+  grid-template-rows: min-content minmax(300px, auto);
   min-height: 100vh;
 }
 
@@ -77,6 +77,7 @@ body {
   margin: auto;
   text-align: center;
   padding: 1ch;
+  margin-top: 3em;
 }
 
 .app-footer .logo {
@@ -90,6 +91,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 3em;
 }
 .app-header .app-logo {
   width: 128px;
@@ -140,4 +142,14 @@ body {
   .app-header {
     flex-wrap: wrap;
   }
+}
+
+
+
+body[data-zen] .app-header,
+body[data-zen] .app-footer {
+  display:  none;
+}
+body[data-zen] .app {
+  display: block;
 }

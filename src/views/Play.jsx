@@ -1,21 +1,25 @@
 import { QuizPlayView } from "../components/quiz/QuizPlayView";
 import {createSignal} from "solid-js";
-import {createJoinedRoom} from '../service/p2pService';
+//import {createJoinedRoom} from '../service/p2pService';
 import "../style/views.css";
 import './Play.css';
+import { createJoinedRoom } from '../service/samspillService';
 
 export function Play(){
-  const [room, setRoom] = createSignal(null);
+  const [room, {refetch: retryRoom}] = createJoinedRoom(null);
   const [nameNote, setNameNote] = createSignal(null && "Name needs to be between 1 and 20 characters");
   const [codeNote, setCodeNote] = createSignal(null && "No room by this code");
-  const onSubmit = (ev) => {
+  const [moreLetters, setMoreLetters] = createSignal(false);
+  const onSubmit = async (ev) => {
     ev.preventDefault();
-    if(room() == null){
-      setRoom(createJoinedRoom());
-    }
     let formData = new FormData(ev.target);
     let name = formData.get("name");
-    let code = formData.getAll("code").join("").toUpperCase();
+    let code;
+    if(moreLetters()){
+      code = formData.get("longCode").join("").toUpperCase();
+    } else {
+      code = formData.getAll("code").join("").toUpperCase();
+    }
     let badName = null;
     if(!name?.match(/^.{1,20}$/)){
       badName = "Name needs to be between 1 and 20 characters";
@@ -31,9 +35,8 @@ export function Play(){
     }
     localStorage.setItem("previousName", name);
     localStorage.setItem("previousCode", code);
-    room().connecting.then(() => {
-      room().joinRoom(code, name);
-    });
+    let password = null;
+    retryRoom({password, name, roomCode: code, ...config})
   };
   const ifFilledMoveToNext = (ev) => {
     ev.target.value = ev.target.value.toUpperCase();
@@ -73,14 +76,29 @@ export function Play(){
       <Match when={room() === null || room()?.canJoinRoom()}>
         <form onSubmit={onSubmit}>
           <div class="entry-group code">
-            <label class="label" htmlFor="code-first-letter">Enter the room code</label>
-            <div class="code-entry-input">
-              <input autofocus={true} id="code-first-letter" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} type="text" maxLength={1} placeholder="A"></input>
-              <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="B"></input>
-              <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="C"></input>
-              <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="D"></input>
+            <label class="label" htmlFor="code">Enter the room code</label>
+            <Show when={!moreLetters()}>
+              <div class="code-entry-input">
+                <input autofocus={true} id="code" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} type="text" maxLength={1} placeholder="A"></input>
+                <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="B"></input>
+                <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="C"></input>
+                <input type="text" name="code" onPaste={onPaste} onClick={(ev) => ev.target.select()} onKeyDown={moveWithArrows} onInput={ifFilledMoveToNext} maxLength={1} placeholder="D"></input>
+              </div>
+            </Show>
+            <Show when={moreLetters()}>
+              <div class="long-code-entry">
+                <div class="background">
+                  <div/><div/>
+                  <div/><div/>
+                </div>
+                <input type="text" id="code" name="longCode" placeholder="ABCDEF..."/>
+              </div>
+            </Show>
+            <div>
+              <button type="button" onClick={() => setMoreLetters(!moreLetters())}>
+                {moreLetters() ? "Less" : "More"} letters...
+              </button>
             </div>
-            <div/>
             <div/>
             <b class="note">
               {codeNote}

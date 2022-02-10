@@ -3,6 +3,7 @@ import { getQuizCollection } from "../service/storageService";
 import { duplicateQuiz, createQuiz } from "../service/makeService";
 import { QuizEditor } from '../components/quiz/QuizEditor';
 import { DisplayQuiz } from '../components/ui/DisplayQuiz';
+import { CopyToClipboardButton } from '../components/ui/CopyToClipboardButton' ;
 import "../style/views.css";
 import "./Make.css";
 import { Link } from 'solid-app-router';
@@ -52,11 +53,9 @@ export function Make(){
               <button type="button" class="quiz-delete" onClick={() => collection.remove(quiz.id)}>
                 delete
               </button>
-              <button type="button" class="quiz-export" onClick={async () => {
-                await navigator.clipboard.writeText(JSON.stringify(duplicateQuiz(quiz)));
-                setCopied(true);
-                setTimeout(() => setCopied(false), 5 * 1000);
-              }}>{copied() ? "copied to clipboard!" : "export as json"}</button>
+              <CopyToClipboardButton class="quiz-export" getValue={() => JSON.stringify(duplicateQuiz(quiz))}>
+                export as json
+              </CopyToClipboardButton>
             </li>;
           }}
         </For>
