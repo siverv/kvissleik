@@ -1,10 +1,11 @@
 import { observable } from 'solid-js';
 import { addSignal } from '../utils/solidUtils';
 import {QuizState, Durations} from '../utils/controllerUtils';
+
 export class HostedQuizController {
   constructor(room){
     this.room = room;
-    this.quiz = room.quiz;
+    this.quiz = room.config.quiz;
     addSignal(this, "questionStateMap", new Map());
     addSignal(this, "scoreMap", new Map());
     addSignal(this, "state", {name: QuizState.LOBBY, data: {}});
@@ -30,9 +31,13 @@ export class HostedQuizController {
         }, 1000);
       }
     });
-    observable(this.room.data$).subscribe(({id, type, payload}) => {
-      this.handleMessage(id, type, payload);
+    this.roomSubscription = this.room.data.subscribe((data) => {
+      this.handleMessage(data.participant.id, data.type, data.payload);
     });
+  }
+
+  cleanup(){
+    this.roomSubscription.unsubscribe();
   }
 
   isConnected(){
@@ -101,18 +106,6 @@ export class HostedQuizController {
     return orderedByScore;
   }
 
-  getRoomCode(){
-    return this.room.roomCode;
-  }
-
-  getRoomLink(){
-    return `${window.location.origin}/play?roomCode=${this.getRoomCode()}#${this.room.roomKey}`;
-  }
-
-  joinByPasting(){
-    return false;
-  }
-
   kick(participant){
     return false;
   }
@@ -134,13 +127,13 @@ export class HostedQuizController {
         participantName: participant.name,
         score,
         position: resultList.findIndex(([_, s]) => s <= score) + 1,
-        connectionState: participant.connected ? "[CONNECTED]" : participant.connecting ? "[CONNECTING]" : "[DISCONNECTED]"
+        connectionState: participant.state
       }
     })
   }
 
   getParticipantName(id){
-    return this.room.participants.find(p => p.id === id)?.name;
+    return this.getParticipants().find(p => p.id === id)?.name;
   }
 
   getNumberOfAnswered() {
@@ -171,7 +164,7 @@ export class HostedQuizController {
         });
       }
       this.questionStateMap = questionStateMap.set(questionId, questionState);
-      if(questionState.size === this.room.participants.length){
+      if(questionState.size === this.getParticipants().length){
         this.showValidation();
       }
     }
@@ -294,11 +287,12 @@ export class HostedQuizController {
           .map(([pId, sMap]) => [pId, Array.from(sMap.values()).reduce((a,b) => a+b, 0)])
       );
       let orderedByScore = Array.from(totalScoreMap.entries()).sort((a,b) => b[1] - a[1]);
-      for(let participant of this.room.participants) {
+      for(let participant of this.getParticipants()) {
         participant.send("STATISTICS", {
           position: orderedByScore.findIndex(a => a[0] === participant.id) + 1,
           added: scoreMap.get(participant.id)?.get(this.state.data.questionId),
-          total: totalScoreMap.get(participant.id)
+          total: totalScoreMap.get(participant.id),
+          currentStandings: this.getCurrentStandings()
         });
       }
     }
@@ -321,10 +315,11 @@ export class HostedQuizController {
         .map(([pId, sMap]) => [pId, Array.from(sMap.values()).reduce((a,b) => a+b, 0)])
     );
     let orderedByScore = Array.from(totalScoreMap.entries()).sort((a,b) => b[1] - a[1]);
-    for(let participant of this.room.participants) {
+    for(let participant of this.getParticipants()) {
       participant.send("RESULTS", {
         position: orderedByScore.findIndex(a => a[0] === participant.id) + 1,
-        total: totalScoreMap.get(participant.id)
+        total: totalScoreMap.get(participant.id),
+        currentStandings: this.getCurrentStandings()
       });
     }
     if(Number.isFinite(Durations.RESULTS)) {
@@ -340,11 +335,5 @@ export class HostedQuizController {
         resultsTimestamp: Date.now()
       }
     };
-    for(let participant of this.room.participants) {
-      participant.send("RESULTS", {
-        position: 1,
-        total: 4000
-      });
-    }
   }
 }

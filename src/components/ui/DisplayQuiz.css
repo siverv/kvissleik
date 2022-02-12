@@ -226,12 +226,6 @@
 }
 
 
-.quiz[data-answered][data-validated][data-scored] .quiz-alternative[data-answered]::after {
-  counter-reset: variable var(--score-added);
-  content: "test" counter(variable);
-  color: black;
-}
-
 
 .quiz[data-answered][data-validated][data-scored] .quiz-alternative[data-answer]::after {
   counter-reset: variable var(--score-added);

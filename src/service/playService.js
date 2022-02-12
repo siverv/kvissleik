@@ -13,10 +13,77 @@ export class JoinedQuizController {
     observable(this.state$).subscribe((value) => {
       console.log("state-change", value);
     });
-    observable(this.room.host.data$).subscribe(({type, payload}) => {
-      this.handleMessage(type, payload);
+    this.roomSubscription = this.room.subscribe((data) => {
+      console.log("roomSubscription", data)
+      if(data){
+        this.handleMessage(data.type, data.payload);
+      }
     });
   }
+
+  cleanup(){
+    this.roomSubscription.unsubscribe();
+  }
+
+  isConnected(){
+    return true;
+  }
+
+  getCurrentQuestion(){
+    let questionId = this.state.data.questionId;
+    if(!questionId){
+      return null;
+    }
+    let currentQuestion = this.quiz.questions.find(q => q.id === questionId);
+    if(!currentQuestion){
+      return null;
+    }
+    switch(this.state.name){
+      case QuizState.QUESTION: return {
+        ...currentQuestion,
+        alternatives: [],
+        correct: null
+      }
+      case QuizState.ALTERNATIVES: return {
+        ...currentQuestion,
+        correct: null,
+      }
+      case QuizState.VALIDATION: return {
+        ...currentQuestion
+      }
+      case QuizState.STATISTICS: {
+        return {
+          ...currentQuestion,
+          score: this.score
+        }
+      }
+    }
+    return null;
+  }
+
+  getParticipants(){
+    return [] //this.room.getParticipants();
+  }
+
+  getMaxParticipants(){
+    return 1000; //this.room.config.maxParticipants;
+  }
+
+  getCurrentStandings(){
+    return this.currentStandings || [];
+    // let participants = this.getParticipants();
+    // let resultList = this.getResultList();
+    // return resultList.map(([pId, score], index) => {
+    //   let participant = participants.find(p => p.id === pId);
+    //   return {
+    //     participantName: participant.name,
+    //     score,
+    //     position: resultList.findIndex(([_, s]) => s <= score) + 1,
+    //     connectionState: participant.connected ? "[CONNECTED]" : participant.connecting ? "[CONNECTING]" : "[DISCONNECTED]"
+    //   }
+    // })
+  }
+
 
   hasAnsweredThisQuestion(){
     const {questionId} = this.state.data;
@@ -80,19 +147,21 @@ export class JoinedQuizController {
         }
       });
     } else if(type === "STATISTICS") {
-      const {position, total, added} = payload;
+      const {position, total, added, currentStandings} = payload;
       this.score = {
         total,
         added,
         position,
         questionId: this.state.data.questionId
       };
+      this.currentStandings = currentStandings;
     } else if(type === "RESULTS") {
-      const {position, total} = payload;
+      const {position, total, currentStandings} = payload;
       this.score = {
         total,
         position
       };
+      this.currentStandings;
     }
   }
 

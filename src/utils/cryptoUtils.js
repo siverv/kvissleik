@@ -10,6 +10,16 @@ export function newId(segments = 4) {
   return id;
 }
 
+export function generateAlphabeticalId(letters = 64, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXY"){
+  const array = new Uint8Array(letters);
+  crypto.getRandomValues(array);
+  let id = "";
+  for (let i = 0; i < array.length; i++) {
+    id += alphabet[array[i] % alphabet.length];
+  }
+  return id;
+}
+
 export function arrayBufferToAlnum(buffer){
   return Array.from(new Uint8Array(buffer)).reduce((x,b) => (x<<8n) + BigInt(b), 0n).toString(36).padStart(50,0);
 }

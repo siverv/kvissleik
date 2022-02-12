@@ -14,7 +14,7 @@ class JsonSerde {
 }
 
 
-class TargetedJsonSerde extends JsonSerde {
+export class TargetedJsonSerde extends JsonSerde {
   constructor(id){
     super();
     this.id = id;
