@@ -36,19 +36,21 @@ function PlayingLobby({ctrl}){
     <h3>
       Waiting for host to start game.
     </h3>
-    <p>
-      {ctrl.getParticipants().length} joined out of {ctrl.getMaxParticipants()} possible.
-    </p>
-    <ul>
-      <For each={ctrl.getParticipants()} fallback={"..."}>
-        {participant => <li>
-          {participant.name} {participant.connected ? "[CONNECTED]" : participant.connecting ? "[CONNECTING]" : "[DISCONNECTED]"}
-          <button type="button" onClick={() => ctrl.kick(participant)}>
-            Kick
-          </button>
-        </li>}
-      </For>
-    </ul>
+    <Show when={ctrl.roomInfo}>
+      <p>
+        {ctrl.getParticipants().length} joined out of {ctrl.getMaxParticipants()} possible.
+      </p>
+      <ul>
+        <For each={ctrl.getParticipants()} fallback={"..."}>
+          {participant => <li>
+            {participant.name} {participant.connected ? "[CONNECTED]" : participant.connecting ? "[CONNECTING]" : "[DISCONNECTED]"}
+            <button type="button" onClick={() => ctrl.kick(participant)}>
+              Kick
+            </button>
+          </li>}
+        </For>
+      </ul>
+    </Show>
   </>;
 }
 
@@ -202,65 +204,6 @@ export function JoinedRoomCreator({setRoom}){
   </section>
 }
 
-
-
-function FourSymbolCodeInput({initialValue}){
-  const ifFilledMoveToNext = (ev) => {
-    ev.target.value = ev.target.value.toUpperCase();
-    if(ev.target.nextSibling && ev.target.value.length >= 1){
-      let next = ev.target.nextSibling;
-      next.focus();
-      next.select();
-    }
-  };
-  const moveWithArrows = (ev) => {
-    let sibling = null;
-    if(ev.key === "ArrowLeft"){
-      sibling = ev.target?.previousSibling || ev.target;
-    } else if(ev.key === "ArrowRight"){
-      sibling = ev.target?.nextSibling || ev.target;
-    } else if(ev.key === "Backspace" && ev.target.value.length === 0) {
-      sibling = ev.target?.previousSibling || ev.target;
-      sibling.value = "";
-    }
-    sibling?.focus();
-    sibling && setTimeout(() => sibling.select(), 5);
-  };
-  const onPaste = (ev) => {
-    ev.preventDefault();
-    let paste = (ev.clipboardData || window.clipboardData).getData('text');
-    paste = paste.toUpperCase().replace(/\s+/g, "");
-    let node = document.getElementById("code-first-letter");
-    for(let i = 0; i < 4; i++){
-      node.value = paste[i];
-      node.focus();
-      node = node.nextSibling;
-    }
-  };
-  const Input = (props) => {
-    return <input type="text"
-      name="code"
-      onPaste={onPaste}
-      onClick={(ev) => ev.target.select()}
-      onKeyDown={moveWithArrows}
-      onInput={ifFilledMoveToNext}
-      maxLength={1}
-      {...props}
-    />
-  }
-  return <div class="code-entry-input">
-    <Input autofocus={true} id="code" placeholder="A" value={initialValue?.[0]}/>
-    <Input placeholder="B" value={initialValue?.[1]}/>
-    <Input placeholder="C" value={initialValue?.[2]}/>
-    <Input placeholder="D" value={initialValue?.[3]}/>
-  </div>
-}
-
-function validateCode(code){
-  if(code.length < 4){
-    return "Code needs to be 4 or more letters";
-  }
-}
 function validateName(name){
   if(!name){
     return "You need a name"

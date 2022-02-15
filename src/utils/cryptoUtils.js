@@ -63,21 +63,52 @@ export async function keyIdToActualKey(keyId){
   );
 }
 
+const RSA_CONFIG = {
+  name: "RSA-OAEP",
+  modulusLength: 2048,
+  publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+  hash: {name: "SHA-256"},
+};
+
+export async function wrapKeyIdForHost(keyId, publicKey){
+  let rawKeyData = alnumToArrayBuffer(keyId).buffer;
+  let truePublicKey = alnumToArrayBuffer(publicKey).buffer;
+  let wrappedKey = await crypto.subtle.wrapKey(
+      "raw", //can be "jwk" or "raw"
+      rawKeyData,
+      publicKey, //the private key with "unwrapKey" usage flag
+      {   //these are the wrapping key's algorithm options
+        name: "RSA-OAEP",
+        hash: {name: "SHA-256"},
+      }
+  );
+  return arrayBufferToAlnum(wrappedKey);
+}
+export async function unwrapKeyIdForHost(keyId, privateKey){
+  let rawKeyData = alnumToArrayBuffer(keyId).buffer;
+  return await crypto.subtle.unwrapKey(
+      "raw", //can be "jwk" or "raw"
+      rawKeyData,
+      privateKey, //the private key with "unwrapKey" usage flag
+      RSA_CONFIG,
+      {   //this is the algorithm options
+          name: "AES-GCM",
+      },
+      false, //whether the key is extractable (i.e. can be used in exportKey)
+      ["encrypt", "decrypt", "wrapKey", "unwrapKey"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+  );
+}
+
 export async function generateHostKeyPair(roomKey){
   let {privateKey, publicKey} = await crypto.subtle.generateKey(
-    {
-      name: "RSA-OAEP",
-      modulusLength: 2048, //can be 1024, 2048, or 4096
-      publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-      hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-    },
+    RSA_CONFIG,
     true, //whether the key is extractable (i.e. can be used in exportKey)
     ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
   );
-  let wrappingKey = await keyIdToActualKey(roomKey);
-  return {
-    privateKey,
-    publicKey: arrayBufferToAlnum(await crypto.subtle.wrapKey(
+  let exportablePublicKey;
+  if(roomKey){
+    let wrappingKey = await keyIdToActualKey(roomKey);
+    exportablePublicKey = await crypto.subtle.wrapKey(
       "spki", //can be "jwk", "raw", "spki", or "pkcs8"
       publicKey, //the key you want to wrap, must be able to export to above format
       wrappingKey, //the AES-GCM key with "wrapKey" usage flag
@@ -95,6 +126,77 @@ export async function generateHostKeyPair(roomKey){
         //Tag length (optional)
         tagLength: 128, //can be 32, 64, 96, 104, 112, 120 or 128 (default)
       }
-    ))
+    );
+  } else {
+    exportablePublicKey = await crypto.subtle.exportKey(
+      "spki",
+      publicKey
+    );
   }
+  return {
+    privateKey,
+    publicKey: arrayBufferToAlnum(exportablePublicKey)
+  }
+}
+
+
+const enc = new TextEncoder(); // always utf-8
+const dec = new TextDecoder(); // always utf-8
+
+export async function encryptSymmetric(data, key){
+  let iv = crypto.getRandomValues(new Uint8Array(12))
+  let buffer = await crypto.subtle.encrypt(
+      {
+          name: "AES-GCM",
+
+          //Don't re-use initialization vectors!
+          //Always generate a new iv every time your encrypt!
+          //Recommended to use 12 bytes length
+          iv,
+
+          //Tag length (optional)
+          tagLength: 128, //can be 32, 64, 96, 104, 112, 120 or 128 (default)
+      },
+      key, //from generateKey or importKey above
+      enc.encode(data).buffer //ArrayBuffer of the data
+  );
+  return [dec.decode(buffer), dec.decode(iv)];
+}
+export async function decryptSymmetric(data, iv, key){
+  let buffer = await crypto.subtle.decrypt(
+      {
+          name: "AES-GCM",
+          iv: enc.encode(iv).buffer, //The initialization vector you used to encrypt
+          tagLength: 128, //The tagLength you used to encrypt (if any)
+      },
+      key, //from generateKey or importKey above
+      data: enc.encode(data).buffer //ArrayBuffer of the data
+  );
+  return dec.decode(buffer);
+}
+
+
+export async function encryptAsymmetric(data, publicKey){
+  let truePublicKey = alnumToArrayBuffer(publicKey).buffer;
+  let buffer = await crypto.subtle.encrypt(
+      {
+          name: "RSA-OAEP",
+          //label: Uint8Array([...]) //optional
+      },
+      publicKey,
+      data: enc.encode(data).buffer
+  );
+  return dec.decode(buffer);
+}
+
+export async function decryptAsymmetric(data, privateKey){
+  let buffer = await crypto.subtle.decrypt(
+      {
+          name: "RSA-OAEP",
+          //label: Uint8Array([...]) //optional
+      },
+      privateKey,
+      data: enc.encode(data).buffer
+  );
+  return dec.decode(buffer);
 }

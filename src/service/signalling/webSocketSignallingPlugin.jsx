@@ -1,23 +1,36 @@
 import {createSignal, observable, onCleanup} from 'solid-js';
 import { CopyToClipboardButton } from '../../components/ui/CopyToClipboardButton';
 import { RoomCodeEntry } from '../../components/ui/RoomCodeEntry';
-import {SignallingServer as _SignallingServer} from './signallingPluginTemplate';
+import { RadioGroup } from '../../components/ui/RadioGroup';
+import {SignallingServer} from './signallingPluginTemplate';
 import {useSearchParams} from 'solid-app-router';
+import {
+  generateHostKeyPair, generateKeyId,
+  decryptSymmetric, encryptSymmetric,
+  decryptAsymmetric, encryptAsymmetric,
+  wrapKeyIdForHost, unwrapKeyIdForHost
+} from '../../utils/cryptoUtils';
 
-export class WebSocketSignallingServer extends _SignallingServer {
+
+const protocol = import.meta.env.VITE_SAMSPILL_PROTOCOL;
+const location = import.meta.env.VITE_SAMSPILL_HOST;
+const samspillVersion = import.meta.env.VITE_SAMSPILL_VERSION
+
+export class WebSocketSignallingServer extends SignallingServer {
+  secure = true;
   static SIGNALLING_SERVER_ID = "WS";
   static details = {
     name: "Samspill",
     description: "WebSocket-based",
   }
-  async connect(config){
-    const {protocol, host, query} = this.config;
+
+  async connect(host){
     return await new Promise((resolve) => {
       this.emitEvent({type: "STATE", data: "CONNECTING"});
       if(this.webSocket){
         this.cleanup();
       }
-      this.webSocket = new WebSocket(`${protocol}//${host}${query}`);
+      this.webSocket = new WebSocket(`${protocol}//${location}${host?"?host":"?join"}`);
       this.webSocket.addEventListener("open", this._onOpen);
       this.webSocket.addEventListener("close", this._onClose);
       this.webSocket.addEventListener("message", this._onMessage);
@@ -27,34 +40,130 @@ export class WebSocketSignallingServer extends _SignallingServer {
 
   _onOpen = this.onOpen.bind(this);
   onOpen(){
-    this.emitEvent({type: "CONNECTED"});
+    this.emitEvent({type: "STATE", data: "CONNECTED"});
     this.connected = true;
     this.resolveConnecting(true);
   }
 
   _onClose = this.onClose.bind(this);
   onClose(){
-    this.emitEvent({type: "DISCONNECTED"});
+    this.emitEvent({type: "STATE", data: "DISCONNECTED"});
     this.webSocket = null;
     this.connected = false;
   }
 
   _onMessage = this.onMessage.bind(this);
-  onMessage(message){
+  async onMessage(message){
     try {
-      let {type, payload} = JSON.parse(message.data);
-      this.handleMessage(type, payload);
+      let {source, data} = JSON.parse(message.data);
+      if(source == null){
+        await this.handleMessage(null, data);
+      } else {
+        if(this.secure){
+          let key;
+          if(this.host){
+            key = await unwrapKeyIdForHost(source, this.privateKey);
+          } else {
+            key = await keyIdToActualKey(this.keyId);
+          }
+          data = await decryptSymmetric(data.content, data.iv, key);
+          data = JSON.parse(data);
+        }
+        this.handleMessage(source, data);
+      }
     } catch(e) {
       console.error(e);
     }
   }
 
-  handleMessage(message){
-    if(message.source === "SERVER") {
-      this.emitEvent({type: "SERVER_MESSAGE", data: message.data});
-    } else if(message.target == null || message.target == whoami) {
-      this.emitEvent({type: "MESSAGE", source: message.source, data: message.data})
+  async host(publicKey, settings){
+    await this.send(null, {type: "HOST", data: {publicKey, settings}});
+  }
+
+  async sleep(){
+    await this.send(null, {type: "SLEEP"});
+    this.emitEvent({type: "ROOM_STATE", data: "SLEEPING"});
+  }
+
+  async about(){
+    await this.send(null, {type: "ABOUT"});
+  }
+
+  async wake(){
+    await this.send(null, {type: "WAKE"});
+    this.emitEvent({type: "ROOM_STATE", data: "ACTIVE"});
+  }
+
+  async quit(){
+    await this.send(null, {type: "QUIT"});
+    this.emitEvent({type: "ROOM_STATE", data: "NONE"});
+  }
+
+  async kick(externalId){
+    await this.send(null, {type: "KICK", data: {externalId}})
+  }
+
+  async join(code, version){
+    await this.send(null, {type: "JOIN", data: {code, version}});
+  }
+
+  async handshake(externalId, name, password) {
+    name = await this.wrapValue(name);
+    password = password && await this.wrapValue(password);
+    await this.send(null, {type: "HANDSHAKE", data: {externalId, name, password}});
+  }
+
+  async signal(signal, target = "host"){
+    await this.send(target, {type: "SIGNAL", data: signal});
+  }
+
+  async handleMessage(source, data){
+    if(this.host){
+      switch(data.type){
+        case 'ROOM': return await this.handleRoom(data.payload);
+        case 'BOUNCE': throw "Not yet implemented";
+        case 'DENIED': return await this.handleDenied(data.payload);
+        case 'JOINED': return await this.handleJoined(data.payload);
+        case 'SIGNAL': return await this.handleSignal(source, data.payload)
+      }
+    } else {
+      switch(data.type){
+        case 'QUIT': return await this.handleQuit();
+        case 'BOUNCE': throw "Not yet implemented";
+        case 'HANDSHAKE' return await this.handleHandshake(data.payload);
+        case 'ACCEPTED': return await this.handleAccepted(data.payload);
+        case 'DENIED': return await this.handleDenied(data.payload);
+        case 'SIGNAL': return await this.handleSignal(source, data.payload)
+      }
     }
+  }
+
+  async withEventResponse(send, responseTypes){
+    return await new Promise((resolve, reject) => {
+      this.events.pipe(first(event => responseTypes.includes(event.type))).subscribe(resolve);
+      send().catch(reject);
+    });
+  }
+
+  async send(target, data) {
+    if(target != null){
+      if(this.secure){
+        data = JSON.stringify(data);
+        let key;
+        if(target === "host"){
+          key = await keyIdToActualKey(this.keyId);
+        } else {
+          key = await unwrapKeyIdForHost(target, this.privateKey);
+        }
+        let [content, iv] = await encryptSymmetric(data, key);
+        data = {content, iv};
+      }
+    }
+    this.webSocket.send(JSON.stringify({
+      target,
+      source: this.whoami,
+      data
+    }));
   }
 
   cleanup(){
@@ -64,106 +173,209 @@ export class WebSocketSignallingServer extends _SignallingServer {
     this.webSocket?.close();
   }
 
-
   async createChannel(config){
-    this.whoami = config.whoami;
-    await this.connect({
-      protocol: "ws:",
-      host: "example.com:20899/socket",
-      query: "?host",
-      type: "kvissleik",
-      ...config
-    });
-    this.request({type: "ROOM_CREATE"}, (response) => {
-      if(response.data.roomCode){
-        this.emitEvent({
-          type: "ROOM_CREATED",
-          data: {roomCode: response.data.roomCode}
-        });
-      } else {
-        this.emitEvent({
-          type: "ROOM_CREATION_DENIED"
-        });
-      }
-    });
-    return {
-      destroy: () => {
-        localStorage.removeItem(this.roomCode);
-        this.cleanup();
-      },
-      sleep: () => {
-        this.send("SERVER", {type: "SLEEP"});
-      },
-      wake: () => {
-        this.send("SERVER", {type: "WAKE"});
-      }
+    this.whoami = "host";
+    this.host = true;
+    this.hidden = connectionConfig.roomCodeType === "HIDDEN";
+    // if(this.secure && this.hidden){
+    //   this.roomKey = await generateKeyId();
+    // }
+    let [keys, _] = await Promise.all([
+      generateHostKeyPair(this.roomKey),
+      this.connect(true)
+    ])
+    this.privateKey = keys.privateKey;
+    this.publicKey = keys.publicKey;
+    const settings = {
+      type: config.type,
+      hidden: this.hidden,
+      maxParticipants: config.maxParticipants,
+      password: config.password
+    };
+    let response = await this.request(
+      async () => await this.host(publicKey, settings),
+      ["ROOM", "DENIED"]
+    );
+    if(response.type === "DENIED"){
+      return false;
     }
+    this.emitEvent({type: "ROOM_STATE", data: "ACTIVE"});
+    return true;
   }
 
   async openChannel(config){
-    this.whoami = config.whoami;
+    let [keyId, _] = await Promise.all([
+      generateKeyId(this.roomKey),
+      this.connect(false)
+    ])
+    this.keyId = keyId;
     this.roomCode = config.roomCode;
-    await this.connect({
-      protocol: "ws:",
-      host: "example.com:20899/socket",
-      query: "?join",
-      type: "kvissleik",
-      ...config
-    });
-    this.request({type: "REQUEST_TO_JOIN_ROOM", payload: {
-      name: config.name,
-      roomCode: this.roomCode
-    }}, (response) => {
-      if(response.data.accepted){
-        this.emitEvent({
-          type: "ACCEPTED",
-          data: {roomCode: response.data.roomCode}
-        });
-      } else {
-        this.emitEvent({
-          type: "DENIED"
-        });
-      }
-    });
+    let response = await this.withEventResponse(
+      async () => await this.join(config.roomCode, samspillVersion),
+      ["ACCEPTED", "DENIED"]
+    );
+    if(response.type === "DENIED"){
+      return response.data;
+    }
+    this.emitEvent({type: "ROOM_STATE", data: "ACTIVE"});
+    return null;
+  }
+
+  async handleRoom(room){
+    this.roomCode = room.code;
+    this.participants = await Promise.all(
+      roomInfo.participants.map(part => this.unwrapParticipant(part))
+    );
+    this.emitEvent({type: "PARTICIPANTS", data: this.participants});
+  }
+
+  async handleDenied(reason){
+    this.emitEvent({type: "DENIED", data: reason});
+  }
+
+  async handleAccepted(room){
+    this.type = room.type;
+    this.emitEvent({type: "ACCEPTED", data: room});
+  }
+
+  handleSignal(source, signal){
+    this.emitEvent({type: "SIGNAL", data: {source, signal}});
+  }
+
+  handleHandshakeDenied(details){
+    console.error("Handshake denied", details.reason);
+    this.emitEvent({type: "DENIED", payload: details.reason})
+  }
+
+  async handleJoined(participant){
+    participant = await this.unwrapParticipant(participant);
+    let index = this.participants.findIndex(part => part.id === participant.id);
+    if(index >= 0){
+      this.participants[index] = participant;
+    } else {
+      this.participants.push(participant);
+    }
+    this.emitEvent({type: "PARTICIPANTS", data: this.participants});
+  }
+
+  async unwrapParticipant(participant){
     return {
-      close: () => {
-        this.cleanup();
-      }
+      id: participant.id,
+      name: await unwrapValue(participant.name)
     }
   }
 
-  request(data, onResponse){
-    this.events.pipe(first(({type}) => type === "SERVER_MESSAGE")).subscribe(onResponse);
-    this.send("SERVER", data);
+  async handleHandshake(handshake){
+    this.publicKey = handshake.publicKey;
+    let {name, password} = this.config;
+    this.name = name;
+    this.externalId = await wrapKeyIdForHost(this.keyId, this.publicKey);
+    await this.handshake(this.externalId, name, password);
   }
 
+  async wrapValue(value){
+    if(this.secure){
+      return await encryptAsymmetric(value, this.publicKey);
+    } else {
+      return value;
+    }
+  }
 
-  send(target, data) {
-    this.webSocket.send(JSON.stringify({
-      target,
-      source: this.whoami,
-      data
-    }));
+  async unwrapValue(value){
+    if(this.secure){
+      return await decryptAsymmetric(value, this.privateKey)
+    } else {
+      return value;
+    }
+  }
+
+  getRoomCode(){
+    return this.hidden ? null : this.roomCode;
+  }
+
+  getRoomLink(){
+    let searchParams = new URLSearchParams();
+    searchParams.set("signallingServer", this.constructor.SIGNALLING_SERVER_ID);
+    searchParams.set("roomCode", this.roomCode);
+    if(this.roomCode.length > 4){
+      searchParams.set("moreLetters", true);
+    }
+    if(this.password){
+      searchParams.set("hasPassword", true);
+    }
+    return `${window.location.origin}/play?${searchParams.toString()}`
   }
 }
 
 
-WebSocketSignallingServer.ParticipantConnectionInput = function({setConnectionDetails}) {
+
+
+WebSocketSignallingServer.ParticipantConnectionInput = function({validationNotes}) {
+  let initialName = localStorage.getItem("SAMSPILL_PREVIOUS_NAME")
   let [searchParams] = useSearchParams()
-  return <RoomCodeEntry notes={note.code} initialValue={searchParams.code}/>;
+  let [showPassword, setShowPassword] = createSignal(searchParams.hasPassword === "true");
+  return <>
+    <input type="hidden" name="password_hasPassword" value={showPassword() ? "true" : "false"}/>
+    <RoomCodeEntry notes={validationNotes.roomCode} initialMoreLetters={searchParams.moreLetters === "true"} initialValue={searchParams.roomCode}/>
+    <div class="entry-group name">
+      <label class="label" htmlFor="name-entry-input">Hello, my name is</label>
+      <input id="name-entry-input" name="name" type="text" minLength={1} maxLength={20} placeholder="Jack and/or Jill" value={initialName}></input>
+      <div/>
+      <div>
+        <button type="button" onClick={() => setMoreLetters(!moreLetters())}>
+          {showPassword() ? "Is this a protected room?" : "Is this an open room?"}
+        </button>
+      </div>
+      <b class="note">
+        {validationNotes.name}
+      </b>
+    </div>
+    <Show when={showPassword()}>
+      <div class="entry-group password">
+        <label class="label" htmlFor="password-entry-input">The secret word is</label>
+        <input id="password-entry-input" name="password" type="password"></input>
+        <div/>
+        <div>
+          <button type="button" onClick={() => setMoreLetters(!moreLetters())}>
+            {showPassword() ? "Require password?" : "No password?"}
+          </button>
+        </div>
+        <b class="note">
+          {validationNotes.password}
+        </b>
+      </div>
+    </Show>
+  </>;
 }
+
 WebSocketSignallingServer.ParticipantConnectionInput.parseFormData = function(formData) {
-  const validationMap = new Map();
-  const connectionDetails = {};
-  connectionDetails.code = RoomCodeEntry.parseFormData(formData);
-  if(connectionDetails.code.length < 4){
-    validationMap.set("code", "Code is too short: needs to be at least 4 characters");
-  } else if(connectionDetails.code.match(/^[A-Z0-9]$/)){
-    validationMap.set("code", "Code contains invalid characters");
+  const config = {};
+  let validationNotes = null;
+  let searchParams = {};
+  config.code = RoomCodeEntry.parseFormData(formData);
+  if(config.code.length < 4){
+    validationNotes = {...validationNotes, code: "Code is too short: needs to be at least 4 characters"};
+  } else if(config.code.match(/^[A-Z0-9]$/)){
+    validationNotes = {...validationNotes, code: "Code contains invalid characters"};
+  } else {
+    searchParams.code = config.code;
+  }
+  let hasPassword = formData.get("password_hasPassword") === "true";
+  if(hasPassword){
+    config.password = formData.get("password") || null;
+  }
+  config.name = formData.get("name")
+  if(!config.name){
+    validationNotes = {...validationNotes, name: "You need a name"}
+  } else if(!config.name.match(/^.{1,20}$/)){
+    validationNotes = {...validationNotes, name: "Name needs to be between 1 and 20 characters"};
+  } else {
+    localStorage.setItem("SAMSPILL_PREVIOUS_NAME", config.name);
   }
   return [
-    connectionDetails,
-    validationMap
+    config,
+    validationNotes,
+    searchParams
   ]
 }
 
@@ -173,21 +385,81 @@ WebSocketSignallingServer.HostConnectionDetails = function({server}) {
       {code => <h3>
           Room code is {code}
         <CopyToClipboardButton getValue={() => code}>
-          copy
+          copy code
         </CopyToClipboardButton>
       </h3>
       }
     </Show>
     <Show when={server.getRoomLink()}>
       {link => <div>
-        <b>Invite players by link: </b>
         <a href={link}>
-          {link}
+          Invite players by link
         </a>
         <CopyToClipboardButton getValue={() => link}>
-          copy
+          copy link
         </CopyToClipboardButton>
       </div>}
     </Show>
   </>
+}
+
+WebSocketSignallingServer.HostConfigurationInput = function({validationNotes}) {
+  const [isRoomCode, setIsRoomCode] = createSignal(true);
+  return <>
+    <div class="entry-group password">
+      <label class="label" htmlFor="signallingConfig_password">Protect the room with a secret password</label>
+      <input id="signallingConfig_password" name="signallingConfig_password" type="password"/>
+      <div/>
+      <b class="note">
+        {validationNotes?.password}
+      </b>
+    </div>
+    <div class="entry-group modes">
+      <label class="label" htmlFor="signallingServerGroup">How would you like your room?</label>
+      <RadioGroup name="signallingConfig_roomCodeType" initialValue="ROOM_CODE" options={[
+          {value: "ROOM_CODE", label: "Room Code", description: "A 4-letter room code is all that's required to join."},
+          {value: "HIDDEN", label: "Hidden Room", description: "An unguessable room code, which can be shared by link."},
+      ]} onInput={ev => setIsRoomCode(ev.target.value === "ROOM_CODE")}/>
+      <div/>
+      <div/>
+      <b class="note">
+        {validationNotes?.roomCodeType}
+      </b>
+    </div>
+    {/*<Show when={isRoomCode()}>
+      <div class="entry-group code-length">
+        <label class="label" htmlFor="roomCodeLength">Room Code Length</label>
+        <input id="roomCodeLength" name="roomCodeLength" type="number" step="1" min="4" max="128" value="4"/>
+        <div/>
+        <b class="note">
+          {validationNotes?.roomCodeLength}
+        </b>
+      </div>
+    </Show>*/}
+  </>
+}
+WebSocketSignallingServer.HostConfigurationInput.parseFormData = function(formData) {
+  let validationNotes = null;
+  let config = {};
+  let searchParams = {};
+  config.roomCodeType = formData.get("signallingConfig_roomCode");
+  searchParams.roomCodeType = config.roomCodeType;
+
+  if(config.roomCodeType === "ROOM_CODE"){
+    config.roomCodeLength = parseInt(formData.get("roomCodeLength"));
+    if(isNaN(config.roomCodeLength)){
+      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be a number.</>};
+    } else if(config.roomCodeLength < 4 || config.roomCodeLength > 128) {
+      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be greater than 4.</>};
+    } else {
+      searchParams.roomCodeLength = config.roomCodeLength;
+    }
+  }
+  config.password = formData.get("signallingConfig_password") || null;
+  
+  return [
+    config,
+    validationNotes,
+    searchParams
+  ]
 }
