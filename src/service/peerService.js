@@ -19,7 +19,7 @@ export class PeerConnection {
   }
 
   connect(initiator, onSignal){
-    this.state.next("CONNECTING");
+    this.state.next("CONNECTING", {initiator, onSignal});
     // eslint-disable-next-line no-undef
     this.peer = new SimplePeer({
       initiator,

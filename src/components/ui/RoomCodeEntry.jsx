@@ -1,7 +1,7 @@
 import {createSignal, createMemo} from 'solid-js';
 import './RoomCodeEntry.css';
 
-export function FourSymbolCodeInput({initialValue}){
+export function FourSymbolCodeInput({initialValue, setMoreLetters}){
   const ifFilledMoveToNext = (ev) => {
     ev.target.value = ev.target.value.toUpperCase();
     if(ev.target.nextSibling && ev.target.value.length >= 1){
@@ -25,11 +25,15 @@ export function FourSymbolCodeInput({initialValue}){
   };
   const onPaste = (ev) => {
     ev.preventDefault();
-    let paste = (ev.clipboardData || window.clipboardData).getData('text');
-    paste = paste.toUpperCase().replace(/\s+/g, "");
-    let node = document.getElementById("code-first-letter");
+    let pastedCode = (ev.clipboardData || window.clipboardData).getData('text');
+    pastedCode = pastedCode.toUpperCase().trim();
+    if(pastedCode.length > 4){
+      setMoreLetters(pastedCode);
+      return;
+    }
+    let node = document.getElementById("code");
     for(let i = 0; i < 4; i++){
-      node.value = paste[i];
+      node.value = pastedCode[i] || "";
       node.focus();
       node = node.nextSibling;
     }
@@ -55,22 +59,31 @@ export function FourSymbolCodeInput({initialValue}){
 
 export function RoomCodeEntry({initialValue, initialMoreLetters, note}){
   const [moreLetters, setMoreLetters] = createSignal(initialMoreLetters);
+  const getInitialValue = createMemo(() => {
+    if(typeof moreLetters() === "string"){
+      return moreLetters();
+    } else {
+      return initialValue || null;
+    }
+  })
   return <div class="entry-group code">
     <input type="hidden" name="code_moreLetters" value={moreLetters()}/>
     <label class="label" htmlFor="code">Enter the room code</label>
     <Show when={!moreLetters()}>
-      <FourSymbolCodeInput initialValue={initialValue}/>
+      <FourSymbolCodeInput initialValue={initialValue} setMoreLetters={setMoreLetters}/>
     </Show>
     <Show when={moreLetters()}>
-      <div class="long-code-entry">
+      {() => <div class="long-code-entry">
         <div class="background">
           <div/><div/><div/><div/>
         </div>
         <input type="text" id="code"
+          ref={elm => setTimeout(() => elm.focus(), 0)}
+          autoFocus={true}
           name="longCode"
           placeholder="ABCDEF..."
-          value={initialValue || null}/>
-      </div>
+          value={getInitialValue()}/>
+      </div>}
     </Show>
     <div>
       <button type="button" onClick={() => setMoreLetters(!moreLetters())}>

@@ -9,7 +9,7 @@ import {useSearchParams} from 'solid-app-router';
 import { DisplayQuiz } from '../components/ui/DisplayQuiz';
 import { QuizState } from '../utils/controllerUtils';
 import {RadioGroup} from '../components/ui/RadioGroup';
-import defaultServer, {getSignallingServer, getSignallingServerOptions} from '../service/signalling';
+import DefaultSignallingServer, {getSignallingServer, getSignallingServerOptions} from '../service/signalling';
 
 function UnexpectedErrorWhilePlaying({error, reset, quit}){
   return <>
@@ -224,7 +224,7 @@ function formToConfig(form, setValidationNotes){
   searchParams.signallingServer = config.signallingServer = formData.get("signallingServer");
   let server = getSignallingServer(config.signallingServer);
   let [connectionConfig, connectionConfigValidation, connectionSearchParams] = server.ParticipantConnectionInput.parseFormData(formData);
-  config.connectionConfig = connectionConfig;
+  Object.assign(config, connectionConfig);
   ok &&= setValidationNotes("ParticipantConnectionInput", connectionConfigValidation);
   Object.assign(searchParams, connectionSearchParams);
 
@@ -238,7 +238,7 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
   const [searchParams, setSearchParams] = useSearchParams();
   const [notes, setNotes] = createStore({});
   const [showOptions, setShowOptions] = createSignal(true);
-  const [signallingServer, setSignallingServer] = createSignal({server: defaultServer});
+  const [signallingServer, setSignallingServer] = createSignal({server: DefaultSignallingServer});
   const onSignallingServerChanged = (ev) => {
     let type = ev.target.value;
     setSignallingServer({server: getSignallingServer(type)});
@@ -295,7 +295,7 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
       <h3>Signalling server configuration</h3>
       <div class="entry-group more">
         <label class="label" htmlFor="signallingServerGroup">How to find your host?</label>
-        <RadioGroup name="signallingServer" initialValue={searchParams.signallingServer || "TEST"} options={getSignallingServerOptions()} onInput={onSignallingServerChanged}/>
+        <RadioGroup name="signallingServer" initialValue={searchParams.signallingServer || DefaultSignallingServer.SIGNALLING_SERVER_ID} options={getSignallingServerOptions()} onInput={onSignallingServerChanged}/>
         <div/>
         <div/>
         <b class="note">

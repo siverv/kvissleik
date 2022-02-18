@@ -17,6 +17,7 @@ class SamspillPeer {
     this.id = id;
     this.peer = new PeerConnection();
     this.stateSubscription = this.peer.state.subscribe(this.stateSignal[1]);
+    this.peer.state.subscribe((state) => console.log(state))
   }
 
   connect(...args){
@@ -66,7 +67,6 @@ class SamspillClient {
   initialize(config){
     this.config = config;
     let SignallingServer = getSignallingServer(config.signallingServer);
-    console.log(SignallingServer)
     if(!SignallingServer){
       return false;
     }
@@ -146,15 +146,17 @@ export class SamspillHost extends SamspillClient {
   handleEvent(event){
     super.handleEvent(event);
     switch(event.type){
-      case "SIGNAL": this.handleSignalEvent(event.data);
-      case "PARTICIPANTS": this.handleParticipantsEvent(event.data);
+      case "SIGNAL": return this.handleSignalEvent(event.data);
+      case "PARTICIPANTS": return this.handleParticipantsEvent(event.data);
     }
   }
 
   handleSignalEvent({source, signal}){
     let participant = this.participantMap.get(source);
+    console.log("part: ", !!participant)
     if(participant){
-      participant.signal(payload, (counterSignal) => {
+      participant.signal(signal, (counterSignal) => {
+        console.log("COUNTER SIGNAL", source)
         this.subscriptions.push(
           participant.peer.data.subscribe(data => {
             this.data.next({participant, ...data});
@@ -167,10 +169,12 @@ export class SamspillHost extends SamspillClient {
 
   handleParticipantsEvent(participants){
     let map = this.participantMap;
+    console.log(participants)
     for(let {id, name} of participants){
       let existing = this.participantMap.get(id);
       if(!existing){
         let participant = new ParticipantPeer(id, name);
+        participant.connect(false);
         this.addParticipant(participant);
       } else if(existing.name != name){
         // TODO: name change.

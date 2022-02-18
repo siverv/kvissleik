@@ -12,7 +12,7 @@ import { getQuizCollection } from "../service/storageService";
 import { SamspillHost } from '../service/samspillService';
 import {useSearchParams} from 'solid-app-router';
 import {RadioGroup} from '../components/ui/RadioGroup';
-import {getSignallingServer, getSignallingServerOptions} from '../service/signalling';
+import DefaultSignallingServer, {getSignallingServer, getSignallingServerOptions} from '../service/signalling';
 import "../components/form/HostForm.css";
 import "../style/views.css";
 
@@ -244,9 +244,10 @@ function formToConfig(form, setValidationNotes){
 
 
   searchParams.signallingServer = config.signallingServer = formData.get("signallingServer");
-  let server = getSignallingServer(config.signallingServer);
-  let [connectionConfig, connectionConfigValidation, connectionSearchParams] = server.HostConfigurationInput.parseFormData(formData);
-  config.connectionConfig = connectionConfig;
+  let Server = getSignallingServer(config.signallingServer);
+  console.log(config.signallingServer, Server)
+  let [connectionConfig, connectionConfigValidation, connectionSearchParams] = Server.HostConfigurationInput.parseFormData(formData);
+  Object.assign(config, connectionConfig);
   ok &&= setValidationNotes("HostConfigurationInput", connectionConfigValidation);
 
   Object.assign(searchParams, connectionSearchParams)
@@ -327,7 +328,7 @@ export function HostConfigForm({setConfig}){
       <h3>Signalling server configuration</h3>
       <div class="entry-group more">
         <label class="label" htmlFor="signallingServerGroup">How to find your players?</label>
-        <RadioGroup name="signallingServer" initialValue={searchParams.signallingServer || "TEST"} options={getSignallingServerOptions()} onInput={onSignallingServerChanged}/>
+        <RadioGroup name="signallingServer" initialValue={searchParams.signallingServer || DefaultSignallingServer.SIGNALLING_SERVER_ID} options={getSignallingServerOptions()} onInput={onSignallingServerChanged}/>
         <div/>
         <div/>
         <b class="note">
