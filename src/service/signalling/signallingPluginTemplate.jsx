@@ -205,7 +205,7 @@ export function applyDefaultRoomCodeConfig(Server) {
 
   Server.ParticipantConnectionInput = function({validationNotes}) {
     let [searchParams] = useSearchParams()
-    return <RoomCodeEntry notes={validationNotes.roomCode} initialMoreLetters={searchParams.moreLetters === "true"} initialValue={searchParams.roomCode}/>;
+    return <RoomCodeEntry notes={validationNotes.roomCode} initialValue={searchParams.roomCode}/>;
   }
   Server.ParticipantConnectionInput.parseFormData = function(formData) {
     const connectionDetails = {};

@@ -57,8 +57,8 @@ export function FourSymbolCodeInput({initialValue, setMoreLetters}){
   </div>
 }
 
-export function RoomCodeEntry({initialValue, initialMoreLetters, note}){
-  const [moreLetters, setMoreLetters] = createSignal(initialMoreLetters);
+export function RoomCodeEntry({initialValue, note}){
+  const [moreLetters, setMoreLetters] = createSignal(initialValue?.length > 4);
   const getInitialValue = createMemo(() => {
     if(typeof moreLetters() === "string"){
       return moreLetters();

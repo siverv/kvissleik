@@ -176,6 +176,7 @@ export function JoinedRoomCreator({setRoom}){
   const [denied, setDenied] = createSignal();
   const [room] = createResource(config, async (config, {value: room}) => {
     let denied = await room.initialize(config)
+    console.log("joined", denied);
     if(!denied){
       setRoom(room);
     } else {

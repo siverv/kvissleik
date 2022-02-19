@@ -302,9 +302,6 @@ export class WebSocketSignallingServer extends SignallingServer {
     let searchParams = new URLSearchParams();
     searchParams.set("signallingServer", this.constructor.SIGNALLING_SERVER_ID);
     searchParams.set("roomCode", this.roomCode);
-    if(this.roomCode.length > 4){
-      searchParams.set("moreLetters", true);
-    }
     if(this.password){
       searchParams.set("hasPassword", true);
     }
@@ -321,7 +318,7 @@ WebSocketSignallingServer.ParticipantConnectionInput = function({validationNotes
   let [showPassword, setShowPassword] = createSignal(searchParams.hasPassword === "true");
   return <>
     <input type="hidden" name="password_hasPassword" value={showPassword() ? "true" : "false"}/>
-    <RoomCodeEntry notes={validationNotes?.roomCode} initialMoreLetters={searchParams.moreLetters === "true"} initialValue={searchParams.roomCode}/>
+    <RoomCodeEntry notes={validationNotes?.roomCode} initialValue={searchParams.roomCode}/>
     <div style="margin:-1em;"/>
     {/* <div class="entry-group name">
       <label class="label" htmlFor="name-entry-input">Hello, my name is</label>

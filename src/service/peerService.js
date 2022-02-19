@@ -19,54 +19,48 @@ export class PeerConnection {
   }
 
   connect(initiator, onSignal){
-    this.state.next("CONNECTING", {initiator, onSignal});
+    this.state.next("CONNECTING");
     // eslint-disable-next-line no-undef
     this.peer = new SimplePeer({
       initiator,
       trickle: false
     });
-    this.peer.on('error', this._onError);
-    this.peer.on('signal', this._onSignal);
-    this.peer.on('connect', this._onConnect);
-    this.peer.on('data', this._onData);
+    this.peer.on('error', this.onError.bind(this));
+    this.peer.on('close', this.onClose.bind(this));
+    this.peer.on('signal', this.onSignal.bind(this));
+    this.peer.on('connect', this.onConnect.bind(this));
+    this.peer.on('data', this.onData.bind(this));
     if(onSignal){
       this.signals.pipe(first()).subscribe(onSignal);
     }
   }
 
   cleanup(){
-    this.peer.close();
+    this.peer?.destroy();
   }
 
-  _onError = this.onError.bind(this);
-  onError(err){
-    console.error("Peer:", err);
-    this.state.next(err);
+  onError(error){
+    console.error(error);
+    this.state.next({error});
   }
 
-  _onConnect = this.onConnect.bind(this);
   onConnect(){
-    console.log("CONNECTED");
+    console.log("Connected");
     this.state.next("CONNECTED");
   }
 
-  _onClose = this.onClose.bind(this);
   onClose(){
     this.peer = null;
+    console.log("Closed");
     this.state.next("CLOSED");
-    console.log("close");
   }
 
-  _onSignal = this.onSignal.bind(this);
   onSignal(signal){
-    console.log("signal", signal);
     this.signals.next(signal);
   }
 
-  _onData = this.onData.bind(this);
   onData(data){
     try {
-      console.log("on data", data);
       const {type, payload} = JSON.parse(data.toString());
       this.data.next({type, payload});
     } catch(err) {
@@ -88,5 +82,3 @@ export class PeerConnection {
     }
   }
 }
-
-

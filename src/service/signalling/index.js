@@ -1,10 +1,10 @@
 
-// import {LocalStorageSignallingServer} from './localStorageSignallingPlugin';
+import {LocalStorageSignallingServer} from './localStorageSignallingPlugin';
 // import {CopyPasteSignalling} from './copypasteSignallingPlugin';
 import {WebSocketSignallingServer} from './webSocketSignallingPlugin';
 
 export const signallingServers = [
-  // LocalStorageSignallingServer,
+  LocalStorageSignallingServer,
   // CopyPasteSignalling,
   WebSocketSignallingServer
 ];
@@ -25,4 +25,4 @@ export function getSignallingServerOptions(type){
   }))
 }
 
-export default WebSocketSignallingServer;
+export default LocalStorageSignallingServer;
