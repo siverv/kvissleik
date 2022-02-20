@@ -1,11 +1,7 @@
-import { createSignal, createResource, observable, createRoot, onCleanup, createReaction } from 'solid-js';
-import { addSignal } from '../utils/solidUtils';
-import { generateKeyId, generateHostKeyPair } from '../utils/cryptoUtils';
-import { TargetedJsonSerde } from '../utils/serdeUtils';
-import { observeNext } from '../utils/solidUtils';
+import { createSignal, observable } from 'solid-js';
 import { getSignallingServer } from './signalling'
-import {PeerConnection} from './peerService';
-import { Subject, filter, map, first } from 'rxjs';
+import {PeerConnection} from './peer';
+import { Subject } from 'rxjs';
 
 class SamspillPeer {
   stateSignal = createSignal();

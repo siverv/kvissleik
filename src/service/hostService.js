@@ -1,10 +1,11 @@
 import { observable } from 'solid-js';
 import { addSignal } from '../utils/solidUtils';
 import {QuizState, Durations} from '../utils/controllerUtils';
+
 export class HostedQuizController {
-  constructor(room, quiz){
+  constructor(room){
     this.room = room;
-    this.quiz = quiz;
+    this.quiz = room.config.quiz;
     addSignal(this, "questionStateMap", new Map());
     addSignal(this, "scoreMap", new Map());
     addSignal(this, "state", {name: QuizState.LOBBY, data: {}});
@@ -30,9 +31,51 @@ export class HostedQuizController {
         }, 1000);
       }
     });
-    // observable(this.room.data$).subscribe(({id, type, payload}) => {
-    //   this.handleMessage(id, type, payload);
-    // });
+    this.roomSubscription = this.room.data.subscribe((data) => {
+      this.handleMessage(data.participant.id, data.type, data.payload);
+    });
+  }
+
+  cleanup(){
+    this.roomSubscription.unsubscribe();
+  }
+
+  isConnected(){
+    return true;
+  }
+
+  getCurrentQuestion(){
+    let questionId = this.state.data.questionId;
+    if(!questionId){
+      return null;
+    }
+    let currentQuestion = this.quiz.questions.find(q => q.id === questionId);
+    if(!currentQuestion){
+      return null;
+    }
+    switch(this.state.name){
+      case QuizState.QUESTION: return {
+        ...currentQuestion,
+        alternatives: [],
+        correct: null
+      }
+      case QuizState.ALTERNATIVES: return {
+        ...currentQuestion,
+        correct: null,
+      }
+      case QuizState.VALIDATION: return {
+        ...currentQuestion
+      }
+      case QuizState.STATISTICS: {
+        const statistics = Array.from(this.questionStateMap.get(questionId)?.values())
+          .reduce((map, {answer}) => map.set(answer, (map.get(answer)||0) + 1), new Map());
+        return {
+          ...currentQuestion,
+          statistics
+        }
+      }
+    }
+    return null;
   }
 
   calculateScore(timeToAnswer, correct){
@@ -63,8 +106,34 @@ export class HostedQuizController {
     return orderedByScore;
   }
 
+  kick(participant){
+    return false;
+  }
+
+  getParticipants(){
+    return this.room.getParticipants();
+  }
+
+  getMaxParticipants(){
+    return this.room.config.maxParticipants;
+  }
+
+  getCurrentStandings(){
+    let participants = this.getParticipants();
+    let resultList = this.getResultList();
+    return resultList.map(([pId, score], index) => {
+      let participant = participants.find(p => p.id === pId);
+      return {
+        participantName: participant.name,
+        score,
+        position: resultList.findIndex(([_, s]) => s <= score) + 1,
+        connectionState: participant.state
+      }
+    })
+  }
+
   getParticipantName(id){
-    return this.room.participants.find(p => p.id === id)?.name;
+    return this.getParticipants().find(p => p.id === id)?.name;
   }
 
   getNumberOfAnswered() {
@@ -95,9 +164,24 @@ export class HostedQuizController {
         });
       }
       this.questionStateMap = questionStateMap.set(questionId, questionState);
-      if(questionState.size === this.room.participants.length){
+      if(questionState.size === this.getParticipants().length){
         this.showValidation();
       }
+    }
+  }
+
+  start(){
+    this.startQuiz();
+  }
+
+  next(){
+    switch(this.state.name){
+      case QuizState.LOBBY: return this.startQuiz();
+      case QuizState.QUESTION: return this.showAlternatives();
+      case QuizState.ALTERNATIVES: return this.showValidation();
+      case QuizState.VALIDATION: return this.showStatistics();
+      case QuizState.STATISTICS: return this.nextQuestion();
+      case QuizState.RESULTS: return this.theEnd()
     }
   }
 
@@ -203,11 +287,12 @@ export class HostedQuizController {
           .map(([pId, sMap]) => [pId, Array.from(sMap.values()).reduce((a,b) => a+b, 0)])
       );
       let orderedByScore = Array.from(totalScoreMap.entries()).sort((a,b) => b[1] - a[1]);
-      for(let participant of this.room.participants) {
+      for(let participant of this.getParticipants()) {
         participant.send("STATISTICS", {
           position: orderedByScore.findIndex(a => a[0] === participant.id) + 1,
           added: scoreMap.get(participant.id)?.get(this.state.data.questionId),
-          total: totalScoreMap.get(participant.id)
+          total: totalScoreMap.get(participant.id),
+          currentStandings: this.getCurrentStandings()
         });
       }
     }
@@ -230,10 +315,11 @@ export class HostedQuizController {
         .map(([pId, sMap]) => [pId, Array.from(sMap.values()).reduce((a,b) => a+b, 0)])
     );
     let orderedByScore = Array.from(totalScoreMap.entries()).sort((a,b) => b[1] - a[1]);
-    for(let participant of this.room.participants) {
+    for(let participant of this.getParticipants()) {
       participant.send("RESULTS", {
         position: orderedByScore.findIndex(a => a[0] === participant.id) + 1,
-        total: totalScoreMap.get(participant.id)
+        total: totalScoreMap.get(participant.id),
+        currentStandings: this.getCurrentStandings()
       });
     }
     if(Number.isFinite(Durations.RESULTS)) {
@@ -249,11 +335,5 @@ export class HostedQuizController {
         resultsTimestamp: Date.now()
       }
     };
-    for(let participant of this.room.participants) {
-      participant.send("RESULTS", {
-        position: 1,
-        total: 4000
-      });
-    }
   }
 }

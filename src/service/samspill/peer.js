@@ -1,8 +1,5 @@
 
-import {createSignal, observable, createReaction} from 'solid-js';
-import {observeNext} from '../utils/solidUtils';
 import {Subject, first} from 'rxjs';
-import * as rxjs from 'rxjs';
 
 export class PeerConnection {
   signals = new Subject();

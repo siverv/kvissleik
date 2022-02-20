@@ -1,8 +1,6 @@
-import { createSignal, For, Switch, createMemo } from "solid-js";
+import { createSignal, For, createMemo } from "solid-js";
 import { getQuizCollection } from "../service/storageService";
-import { duplicateQuiz, createQuiz } from "../service/makeService";
-import { QuizEditor } from '../components/quiz/QuizEditor';
-import { DisplayQuiz } from '../components/ui/DisplayQuiz';
+import { duplicateQuiz } from "../service/makeService";
 import { CopyToClipboardButton } from '../components/ui/CopyToClipboardButton' ;
 import "../style/views.css";
 import "./Make.css";

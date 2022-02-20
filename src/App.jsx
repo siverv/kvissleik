@@ -43,6 +43,7 @@ export function App(){
     </header>
     <main class="app-main">
       <ErrorBoundary fallback={(error, reset) => {
+        console.error(error);
         return <>
           <button onClick={reset}>
             oops.

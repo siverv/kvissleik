@@ -66,7 +66,7 @@ export function RoomCodeEntry({initialValue, note}){
       return initialValue || null;
     }
   })
-  return <div class="entry-group code">
+  return <div class="room-code-entry entry-group code">
     <input type="hidden" name="code_moreLetters" value={moreLetters()}/>
     <label class="label" htmlFor="code">Enter the room code</label>
     <Show when={!moreLetters()}>

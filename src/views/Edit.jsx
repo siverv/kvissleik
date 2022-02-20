@@ -1,6 +1,6 @@
 import { getQuizCollection } from "../service/storageService";
 import { createQuiz } from "../service/makeService";
-import { QuizEditor } from '../components/quiz/QuizEditor';
+import { QuizEditor } from '../components/edit/QuizEditor';
 import { useParams } from "solid-app-router";
 import { createMemo } from "solid-js";
 import "../style/views.css";

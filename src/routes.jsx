@@ -1,6 +1,6 @@
-import { Host } from "./views/Host3";
+import { Host } from "./views/Host";
 import { Make } from "./views/Make";
-import { Play } from "./views/Play3";
+import { Play } from "./views/Play";
 import { Test } from "./views/Test";
 import { Edit } from "./views/Edit";
 import { View } from "./views/View";

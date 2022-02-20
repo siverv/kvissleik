@@ -1,15 +1,5 @@
 
 
-export function newId(segments = 4) {
-  const array = new Uint32Array(segments);
-  crypto.getRandomValues(array);
-  let id = "";
-  for (let i = 0; i < array.length; i++) {
-    id += (i ? "-" : "") + array[i].toString(36);
-  }
-  return id;
-}
-
 export function generateAlphabeticalId(letters = 64, alphabet="ABCDEFGHIJKLMNOPQRSTUVWXY"){
   const array = new Uint8Array(letters);
   crypto.getRandomValues(array);
@@ -63,13 +53,14 @@ export async function keyIdToActualKey(keyId){
   );
 }
 
-export async function hashPassword(password, hostPublicKeyId){
-  await crypto.subtle.digest(
+export async function hashValue(value, hostPublicKeyId){
+  let hash = await crypto.subtle.digest(
       {
           name: "SHA-512",
       },
-      new Uint8Array(password + hostPublicKeyId) //The data you want to hash as an ArrayBuffer
+      new Uint8Array(value + hostPublicKeyId) //The data you want to hash as an ArrayBuffer
   )
+  return ab2str(hash);
 }
 
 export async function publicKeyIdToActualKey(publicKeyId){

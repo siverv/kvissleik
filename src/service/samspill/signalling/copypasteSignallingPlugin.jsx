@@ -1,5 +1,5 @@
 import {createSignal, observable, onCleanup} from 'solid-js';
-import { CopyToClipboardButton } from '../../components/ui/CopyToClipboardButton';
+import { CopyToClipboardButton } from '../components/CopyToClipboardButton';
 import {SignallingServer} from './signallingPluginTemplate';
 import {useSearchParams} from 'solid-app-router';
 

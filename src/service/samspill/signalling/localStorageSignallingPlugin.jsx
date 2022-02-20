@@ -1,18 +1,15 @@
-import {createSignal, observable, onCleanup} from 'solid-js';
-import { CopyToClipboardButton } from '../../components/ui/CopyToClipboardButton';
-import { RoomCodeEntry } from '../../components/ui/RoomCodeEntry';
-import { RadioGroup } from '../../components/ui/RadioGroup';
 import {SignallingServer} from './signallingPluginTemplate';
-import {WebSocketSignallingServer} from './webSocketSignallingPlugin';
-import {useSearchParams} from 'solid-app-router';
 import {first} from 'rxjs';
-import {generateAlphabeticalId} from '../../utils/cryptoUtils';
 import {
+  generateAlphabeticalId,
   generateHostKeyPair, generateKeyId,
   decryptSymmetric, encryptSymmetric,
   wrapKeyIdForHost, unwrapKeyIdForHost,
-  keyIdToActualKey, hashPassword
-} from '../../utils/cryptoUtils';
+  keyIdToActualKey, hashValue
+} from '../crypto';
+import {ParticipantConnectionInput} from '../components/ParticipantConnectionInput';
+import {HostConnectionDetails} from '../components/HostConnectionDetails';
+import {HostConfigurationInput} from '../components/HostConfigurationInput';
 
 const samspillVersion = import.meta.env.VITE_SAMSPILL_VERSION;
 const roomPrefix = "SAMSPILL_ROOM";
@@ -130,7 +127,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
 
   async hostHandshake(publicKey, settings){
     this.appendLog.create();
-    this.password = settings.password ? await hashPassword(settings.password, publicKey) : null;
+    this.password = settings.password ? await hashValue(settings.password, publicKey) : null;
     await this.send(null, {type: "HOST", payload: {
       publicKey,
       settings: {
@@ -173,7 +170,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
 
   async joinHandshake(externalId, name, password, signal){
     name = await this.encryptValue(name);
-    password = password && await hashPassword(password, this.publicKey);
+    password = password && await hashValue(password, this.publicKey);
     signal = await this.encryptValue(JSON.stringify(signal));
     await this.send(null, {type: "JOIN", payload: {
       externalId,
@@ -389,68 +386,6 @@ export class LocalStorageSignallingServer extends SignallingServer {
 
 
 
-
-LocalStorageSignallingServer.ParticipantConnectionInput = WebSocketSignallingServer.ParticipantConnectionInput;
-LocalStorageSignallingServer.HostConnectionDetails = WebSocketSignallingServer.HostConnectionDetails;
-
-LocalStorageSignallingServer.HostConfigurationInput = function({validationNotes}) {
-  const [isRoomCode, setIsRoomCode] = createSignal(true);
-  return <>
-    <div class="entry-group password">
-      <label class="label" htmlFor="signallingConfig_password">Protect the room with a secret password</label>
-      <input id="signallingConfig_password" name="signallingConfig_password" type="password"/>
-      <div/>
-      <b class="note">
-        {validationNotes?.password}
-      </b>
-    </div>
-    <div class="entry-group modes">
-      <label class="label" htmlFor="signallingServerGroup">How would you like your room?</label>
-      <RadioGroup name="signallingConfig_roomCodeType" initialValue="ROOM_CODE" options={[
-          {value: "ROOM_CODE", label: "Room Code", description: "A 4-letter room code is all that's required to join."},
-          {value: "HIDDEN", label: "Hidden Room", description: "An unguessable room code, which can be shared by link."},
-          {value: "SECURE", label: "Secure Room", description: "Encrypted metadata, not just encrypted payload. Requires link."},
-      ]} onInput={ev => setIsRoomCode(ev.target.value === "ROOM_CODE")}/>
-      <div/>
-      <div/>
-      <b class="note">
-        {validationNotes?.roomCodeType}
-      </b>
-    </div>
-    {/*<Show when={isRoomCode()}>
-      <div class="entry-group code-length">
-        <label class="label" htmlFor="roomCodeLength">Room Code Length</label>
-        <input id="roomCodeLength" name="roomCodeLength" type="number" step="1" min="4" max="128" value="4"/>
-        <div/>
-        <b class="note">
-          {validationNotes?.roomCodeLength}
-        </b>
-      </div>
-    </Show>*/}
-  </>
-}
-LocalStorageSignallingServer.HostConfigurationInput.parseFormData = function(formData) {
-  let validationNotes = null;
-  let config = {};
-  let searchParams = {};
-  config.roomCodeType = formData.get("signallingConfig_roomCode");
-  searchParams.roomCodeType = config.roomCodeType;
-
-  if(config.roomCodeType === "ROOM_CODE"){
-    config.roomCodeLength = parseInt(formData.get("roomCodeLength"));
-    if(isNaN(config.roomCodeLength)){
-      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be a number.</>};
-    } else if(config.roomCodeLength < 4 || config.roomCodeLength > 128) {
-      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be greater than 4.</>};
-    } else {
-      searchParams.roomCodeLength = config.roomCodeLength;
-    }
-  }
-  config.password = formData.get("signallingConfig_password") || null;
-  
-  return [
-    config,
-    validationNotes,
-    searchParams
-  ]
-}
+LocalStorageSignallingServer.ParticipantConnectionInput = ParticipantConnectionInput;
+LocalStorageSignallingServer.HostConnectionDetails = HostConnectionDetails;
+LocalStorageSignallingServer.HostConfigurationInput = HostConfigurationInput;

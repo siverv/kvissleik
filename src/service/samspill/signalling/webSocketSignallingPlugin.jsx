@@ -1,16 +1,14 @@
-import {createSignal} from 'solid-js';
-import { CopyToClipboardButton } from '../../components/ui/CopyToClipboardButton';
-import { RoomCodeEntry } from '../../components/ui/RoomCodeEntry';
-import { RadioGroup } from '../../components/ui/RadioGroup';
 import {SignallingServer} from './signallingPluginTemplate';
-import {useSearchParams} from 'solid-app-router';
 import {first} from 'rxjs';
 import {
   generateHostKeyPair, generateKeyId,
   decryptSymmetric, encryptSymmetric,
   wrapKeyIdForHost, unwrapKeyIdForHost,
-  keyIdToActualKey, hashPassword
-} from '../../utils/cryptoUtils';
+  keyIdToActualKey, hashValue
+} from '../crypto';
+import {ParticipantConnectionInput} from '../components/ParticipantConnectionInput';
+import {HostConnectionDetails} from '../components/HostConnectionDetails';
+import {HostConfigurationInput} from '../components/HostConfigurationInput';
 
 
 const protocol = import.meta.env.VITE_SAMSPILL_PROTOCOL;
@@ -81,7 +79,7 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   async host(publicKey, settings){
-    settings.password = settings.password ? await hashPassword(settings.password, publicKey) : null;
+    settings.password = settings.password ? await hashValue(settings.password, publicKey) : null;
     await this.send(null, {type: "HOST", payload: {publicKey, settings, version: samspillVersion}});
   }
 
@@ -114,8 +112,9 @@ export class WebSocketSignallingServer extends SignallingServer {
 
   async handshake(externalId, name, password) {
     name = await this.encryptValue(name);
-    password = password && await hashPassword(password, this.publicKey);
-    await this.send(null, {type: "HANDSHAKE", payload: {externalId, name, password}});
+    let nameHash = await hashValue(name, this.publicKey);
+    password = password && await hashValue(password, this.publicKey);
+    await this.send(null, {type: "HANDSHAKE", payload: {externalId, name, nameHash, password}});
   }
 
   async signal(signal, target = "host"){
@@ -270,6 +269,12 @@ export class WebSocketSignallingServer extends SignallingServer {
   async handleHandshake(handshake){
     this.publicKey = handshake.publicKey;
     let {name, password} = this.config;
+    if(!password && handshake.hasPassword){
+      password = prompt("Enter the rooms secret password:");
+      if(!password){
+        return this.handleDenied({reason: "NO_PASSWORD"});
+      }
+    }
     this.name = name;
     this.externalId = await wrapKeyIdForHost(this.keyId, this.publicKey);
     await this.handshake(this.externalId, name, password);
@@ -302,169 +307,13 @@ export class WebSocketSignallingServer extends SignallingServer {
     let searchParams = new URLSearchParams();
     searchParams.set("signallingServer", this.constructor.SIGNALLING_SERVER_ID);
     searchParams.set("roomCode", this.roomCode);
-    if(this.password){
+    if(this.config.password){
       searchParams.set("hasPassword", true);
     }
     return `${window.location.origin}/play?${searchParams.toString()}`
   }
 }
 
-
-
-
-WebSocketSignallingServer.ParticipantConnectionInput = function({validationNotes}) {
-  let initialName = localStorage.getItem("SAMSPILL_PREVIOUS_NAME")
-  let [searchParams] = useSearchParams()
-  let [showPassword, setShowPassword] = createSignal(searchParams.hasPassword === "true");
-  return <>
-    <input type="hidden" name="password_hasPassword" value={showPassword() ? "true" : "false"}/>
-    <RoomCodeEntry notes={validationNotes?.roomCode} initialValue={searchParams.roomCode}/>
-    <div style="margin:-1em;"/>
-    {/* <div class="entry-group name">
-      <label class="label" htmlFor="name-entry-input">Hello, my name is</label>
-      <input id="name-entry-input" name="name" type="text" minLength={1} maxLength={20} placeholder="Jack and/or Jill" value={initialName}></input>
-      <div/>
-      <div>
-        <button type="button" onClick={() => setMoreLetters(!moreLetters())}>
-          {showPassword() ? "Is this a protected room?" : "Is this an open room?"}
-        </button>
-      </div>
-      <b class="note">
-        {validationNotes?.name}
-      </b>
-    </div> */}
-    <div class="entry-group password">
-      <div/><div>
-        <button type="button" onClick={() => setShowPassword(!showPassword())}>
-          {showPassword() ? "Is this an open room?" : "Is this a protected room?"}
-        </button>
-      </div><div/>
-      <Show when={showPassword()}>
-        <label class="label" htmlFor="password-entry-input">The secret word is</label>
-        <input id="password-entry-input" name="password" type="password"></input>
-        <div/>
-        <div/>
-        <b class="note">
-          {validationNotes?.password}
-        </b>
-      </Show>
-    </div>
-    <div style="margin:1em;"/>
-  </>;
-}
-
-WebSocketSignallingServer.ParticipantConnectionInput.parseFormData = function(formData) {
-  const config = {};
-  let validationNotes = null;
-  let searchParams = {};
-  config.roomCode = RoomCodeEntry.parseFormData(formData);
-  if(config.roomCode.length < 4){
-    validationNotes = {...validationNotes, roomCode: "Code is too short: needs to be at least 4 characters"};
-  } else if(config.roomCode.match(/^[A-Z0-9]$/)){
-    validationNotes = {...validationNotes, roomCode: "Code contains invalid characters"};
-  } else {
-    searchParams.roomCode = config.roomCode;
-  }
-  let hasPassword = formData.get("password_hasPassword") === "true";
-  if(hasPassword){
-    config.password = formData.get("password") || null;
-  }
-  config.name = formData.get("name")
-  if(!config.name){
-    validationNotes = {...validationNotes, name: "You need a name"}
-  } else if(!config.name.match(/^.{1,20}$/)){
-    validationNotes = {...validationNotes, name: "Name needs to be between 1 and 20 characters"};
-  } else {
-    localStorage.setItem("SAMSPILL_PREVIOUS_NAME", config.name);
-  }
-  return [
-    config,
-    validationNotes,
-    searchParams
-  ]
-}
-
-WebSocketSignallingServer.HostConnectionDetails = function({server}) {
-  return <>
-    <Show when={server.getRoomCode()}>
-      {code => <h3>
-          Room code is {code}
-        <CopyToClipboardButton getValue={() => code}>
-          copy code
-        </CopyToClipboardButton>
-      </h3>
-      }
-    </Show>
-    <Show when={server.getRoomLink()}>
-      {link => <div>
-        <a href={link}>
-          Invite players by link
-        </a>
-        <CopyToClipboardButton getValue={() => link}>
-          copy link
-        </CopyToClipboardButton>
-      </div>}
-    </Show>
-  </>
-}
-
-WebSocketSignallingServer.HostConfigurationInput = function({validationNotes}) {
-  const [isRoomCode, setIsRoomCode] = createSignal(true);
-  return <>
-    <div class="entry-group password">
-      <label class="label" htmlFor="signallingConfig_password">Protect the room with a secret password</label>
-      <input id="signallingConfig_password" name="signallingConfig_password" type="password"/>
-      <div/>
-      <b class="note">
-        {validationNotes?.password}
-      </b>
-    </div>
-    <div class="entry-group modes">
-      <label class="label" htmlFor="signallingServerGroup">How would you like your room?</label>
-      <RadioGroup name="signallingConfig_roomCodeType" initialValue="ROOM_CODE" options={[
-          {value: "ROOM_CODE", label: "Room Code", description: "A 4-letter room code is all that's required to join."},
-          {value: "HIDDEN", label: "Hidden Room", description: "An unguessable room code, which can be shared by link."},
-      ]} onInput={ev => setIsRoomCode(ev.target.value === "ROOM_CODE")}/>
-      <div/>
-      <div/>
-      <b class="note">
-        {validationNotes?.roomCodeType}
-      </b>
-    </div>
-    {/*<Show when={isRoomCode()}>
-      <div class="entry-group code-length">
-        <label class="label" htmlFor="roomCodeLength">Room Code Length</label>
-        <input id="roomCodeLength" name="roomCodeLength" type="number" step="1" min="4" max="128" value="4"/>
-        <div/>
-        <b class="note">
-          {validationNotes?.roomCodeLength}
-        </b>
-      </div>
-    </Show>*/}
-  </>
-}
-WebSocketSignallingServer.HostConfigurationInput.parseFormData = function(formData) {
-  let validationNotes = null;
-  let config = {};
-  let searchParams = {};
-  config.roomCodeType = formData.get("signallingConfig_roomCode");
-  searchParams.roomCodeType = config.roomCodeType;
-
-  if(config.roomCodeType === "ROOM_CODE"){
-    config.roomCodeLength = parseInt(formData.get("roomCodeLength"));
-    if(isNaN(config.roomCodeLength)){
-      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be a number.</>};
-    } else if(config.roomCodeLength < 4 || config.roomCodeLength > 128) {
-      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be greater than 4.</>};
-    } else {
-      searchParams.roomCodeLength = config.roomCodeLength;
-    }
-  }
-  config.password = formData.get("signallingConfig_password") || null;
-  
-  return [
-    config,
-    validationNotes,
-    searchParams
-  ]
-}
+WebSocketSignallingServer.ParticipantConnectionInput = ParticipantConnectionInput;
+WebSocketSignallingServer.HostConnectionDetails = HostConnectionDetails;
+WebSocketSignallingServer.HostConfigurationInput = HostConfigurationInput;
