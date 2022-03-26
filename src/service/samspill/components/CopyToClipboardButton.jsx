@@ -11,7 +11,7 @@ export function CopyToClipboardButton({children, getValue, ...props}){
   onCleanup(() => {
     clearTimeout(timeoutId);
   });
-  return <button type="button" onClick={copyToClipboard} {...props}>
+  return <button class="copy-to-clipboard" type="button" onClick={copyToClipboard} {...props}>
     {copied() ? "copied!" : (children || "copy")}
   </button>
 }

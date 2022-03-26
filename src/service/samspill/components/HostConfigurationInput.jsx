@@ -31,19 +31,19 @@ HostConfigurationInput.parseFormData = function(formData) {
   let validationNotes = null;
   let config = {};
   let searchParams = {};
-  config.roomCodeType = formData.get("signallingConfig_roomCode");
+  config.roomCodeType = formData.get("signallingConfig_roomCodeType");
   searchParams.roomCodeType = config.roomCodeType;
 
-  if(config.roomCodeType === "ROOM_CODE"){
-    config.roomCodeLength = parseInt(formData.get("roomCodeLength"));
-    if(isNaN(config.roomCodeLength)){
-      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be a number.</>};
-    } else if(config.roomCodeLength < 4 || config.roomCodeLength > 128) {
-      validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be greater than 4.</>};
-    } else {
-      searchParams.roomCodeLength = config.roomCodeLength;
-    }
-  }
+  // if(config.roomCodeType === "ROOM_CODE"){
+  //   config.roomCodeLength = parseInt(formData.get("roomCodeLength"));
+  //   if(isNaN(config.roomCodeLength)){
+  //     validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be a number.</>};
+  //   } else if(config.roomCodeLength < 4 || config.roomCodeLength > 128) {
+  //     validationNotes = {...validationNotes, roomCodeLength: <>The room code length needs to be greater than 4.</>};
+  //   } else {
+  //     searchParams.roomCodeLength = config.roomCodeLength;
+  //   }
+  // }
   config.password = formData.get("signallingConfig_password") || null;
   
   return [

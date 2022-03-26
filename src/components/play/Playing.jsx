@@ -1,6 +1,7 @@
 import { onCleanup, createMemo, Switch, Match} from "solid-js";
 import { JoinedQuizController } from '../../service/playService';
 import { DisplayQuiz } from '../ui/DisplayQuiz';
+import { ParticipantList } from '../ui/ParticipantList';
 import { QuizState } from '../../utils/controllerUtils';
 
 
@@ -33,16 +34,6 @@ function PlayingLobby({ctrl}){
       <p>
         {ctrl.getParticipants().length} joined out of {ctrl.getMaxParticipants()} possible.
       </p>
-      <ul>
-        <For each={ctrl.getParticipants()} fallback={"..."}>
-          {participant => <li>
-            {participant.name} {participant.connected ? "[CONNECTED]" : participant.connecting ? "[CONNECTING]" : "[DISCONNECTED]"}
-            <button type="button" onClick={() => ctrl.kick(participant)}>
-              Kick
-            </button>
-          </li>}
-        </For>
-      </ul>
     </Show>
   </>;
 }
@@ -59,7 +50,7 @@ function PlayingQuestion({ctrl, question}){
     window.removeEventListener("keydown", escapeZen);
     delete document.body.dataset.zen;
   });
-  const getAnswer = createMemo(() => ctrl.answerMap.get(ctrl.state.data.questionId));
+  const getAnswer = createMemo(() => ctrl.answerMap.get(ctrl.state.data.question.id));
   return <>
     <DisplayQuiz
       question={question}
@@ -67,7 +58,7 @@ function PlayingQuestion({ctrl, question}){
       correct={question.correct}
       statistics={question.statistics}
       getAnswer={getAnswer}
-      getScore={createMemo(() => ctrl.score.questionId == ctrl.state.data.questionId ? ctrl.score : undefined)}
+      getScore={createMemo(() => ctrl.score.questionId == ctrl.state.data.question.id ? ctrl.score : undefined)}
       Alternative={ctrl.state.name === "ALTERNATIVES" ? (props) => <button {...props}
         disabled={getAnswer() || undefined}
         onClick={() => {
@@ -75,32 +66,17 @@ function PlayingQuestion({ctrl, question}){
         }}
       /> : undefined}
     />
-    <aside>
-      <ul>
-        <For each={ctrl.getCurrentStandings()}>
-          {({participantName, position, score, connectionState}) => <li>
-            #{position}: {participantName}: {score}
-              [{connectionState}]
-          </li>}
-        </For>
-      </ul>
-    </aside>
   </>
 }
 
-function DisplayFinalResults({results}) {
+function DisplayFinalResults({ctrl, results}) {
   return <>
-    <h3>You are #{results.position} with a score of {results.score}</h3>
+    <h3>You are #{ctrl.score.position} with a score of {ctrl.score.total}</h3>
 
     <h3>And the results are....</h3>
-    <ul>
-      <For each={results}>
-        {({participantName, position, score, connectionState}) => <li>
-          #{position}: {participantName}: {score}
-            [{connectionState}]
-        </li>}
-      </For>
-    </ul>
+    <ParticipantList getParticipants={() => {
+      return results.map(({participantName, participantId}) => ({id: participantId, name: participantName, state: "CONNECTED"}))
+    }} getCurrentStandings={() => results} limit={3}/>
   </>
 }
 
@@ -118,7 +94,7 @@ export function Playing({room, quit}){
           {(question) => <PlayingQuestion ctrl={ctrl} question={question}/>}
         </Match>
         <Match when={ctrl.state.name === QuizState.RESULTS}>
-          {() => <DisplayFinalResults results={ctrl.getCurrentStandings()}/>}
+          {() => <DisplayFinalResults ctrl={ctrl} results={ctrl.getCurrentStandings()}/>}
         </Match>
         <Match when={false}>
           <h3>

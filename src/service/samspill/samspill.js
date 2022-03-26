@@ -1,7 +1,7 @@
 import { createSignal, observable } from 'solid-js';
 import { getSignallingServer } from './signalling'
-import {PeerConnection} from './peer';
-import { Subject } from 'rxjs';
+import { PeerConnection } from './peer';
+import { EventStream } from './events';
 
 class SamspillPeer {
   stateSignal = createSignal();
@@ -12,7 +12,16 @@ class SamspillPeer {
   constructor(id){
     this.id = id;
     this.peer = new PeerConnection();
-    this.stateSubscription = this.peer.state.subscribe(this.stateSignal[1]);
+    this.removePeerStateSignal = this.peer.state.intoSignal(this.stateSignal);
+    // setInterval(() => {
+    //   console.log("PING");
+    //   this.peer.send("HEARTBEAT", {});
+    // }, 1000);
+    // this.peer.data.addListener(data => {
+    //   if(data.type === "HEARTBEAT"){
+    //     console.log("PONG")
+    //   }
+    // })
   }
 
   connect(initiator, onSignal){
@@ -22,16 +31,17 @@ class SamspillPeer {
   }
 
   reconnect(){
-    this.stateSubscription?.unsubscribe();
-    this.dataSubscription?.unsubscribe();
+    this.removeDataListener?.();
+    this.removeStateListener?.();
     this.peer.cleanup();
     this.peer = new PeerConnection();
     this.peer.connect(this.initator, this.onSignal);
   }
 
   cleanup(){
-    this.stateSubscription?.unsubscribe();
-    this.dataSubscription?.unsubscribe();
+    this.removeDataListener?.();
+    this.removeStateListener?.();
+    this.removePeerStateSignal?.();
     this.stateListener?.unsubscribe();
     this.peer.cleanup();
   }
@@ -44,14 +54,12 @@ class SamspillPeer {
     this.peer.send(type, payload);
   }
 
-  subscribe(callback){
-    this.dataSubscription = this.peer.data.subscribe(callback);
+  setDataListener(listener){
+    this.removeDataListener = this.peer.data.addListener(listener);
   }
 
-  setStateListener(callback){
-    this.stateListener = observable(this.stateSignal[0]).subscribe((state) => {
-      callback(state, this);
-    })
+  setStateListener(listener){
+    this.removeStateListener = this.peer.state.addListener(listener);
   }
 }
 
@@ -69,7 +77,7 @@ class HostPeer extends SamspillPeer {
 
 
 class SamspillClient {
-  data = new Subject();
+  data = new EventStream();
   connectionState = createSignal("DISCONNECTED");
   roomState = createSignal("NONE");
   initialize(config){
@@ -79,7 +87,7 @@ class SamspillClient {
       return false;
     }
     this.server = new SignallingServer(config);
-    this.server.events.subscribe(event => this.handleEvent(event));
+    this.removeEventListener = this.server.events.addListener(this.handleEvent.bind(this));
     return true;
   }
 
@@ -91,26 +99,29 @@ class SamspillClient {
   }
 
   cleanup(){
+    this.removeEventListener?.();
     this.server?.cleanup();
   }
 
   subscribe(fn){
-    return this.data.subscribe(fn);
+    return {
+      unsubscribe: this.data.addListener(fn)
+    };
   }
 }
 
 export class SamspillHost extends SamspillClient {
-  subscriptions = [];
-
   participantMapSignal = createSignal(new Map());
-  
+
   get participantMap(){
     return this.participantMapSignal[0]();
   }
   
   addParticipant(participant){
     participant.connect(false);
-    participant.setStateListener(this.handleParticipantStateChange.bind(this));
+    participant.setStateListener((state) => {
+      this.handleParticipantStateChange(state, participant)
+    });
     this.participantMapSignal[1](
       new Map(this.participantMap).set(participant.id, participant)
     );
@@ -118,7 +129,7 @@ export class SamspillHost extends SamspillClient {
   
   removeParticipant(participant){
     let map = new Map(this.participantMap);
-    participant.close();
+    participant.cleanup();
     map.delete(participant.id);
     this.participantMapSignal[1](map);
     this.server.kick(participant.id);
@@ -144,9 +155,6 @@ export class SamspillHost extends SamspillClient {
 
   cleanup(){
     this.server.cleanup();
-    for(let {unsubscribe} of this.subscriptions){
-      unsubscribe();
-    }
     for(let [_, participant] of this.participantMap){
       participant.cleanup();
     }
@@ -169,8 +177,8 @@ export class SamspillHost extends SamspillClient {
     let participant = this.participantMap.get(source);
     if(participant){
       participant.signal(signal, (counterSignal) => {
-        participant.subscribe(data => {
-          this.data.next({participant, ...data});
+        participant.setDataListener(data => {
+          this.data.emit({participant, ...data});
         })
         this.server.signal(counterSignal, source);
       });
@@ -192,6 +200,12 @@ export class SamspillHost extends SamspillClient {
   handleParticipantStateChange(state, participant){
     if(state === "CLOSED"){
       participant.reconnect(false);
+    }
+    let closed = this.getParticipants().filter(part => part.state === "CLOSED");
+    if(closed.length > 0){
+      this.server.wake();
+    } else {
+      // this.server.sleep();
     }
   }
 
@@ -238,16 +252,16 @@ export class SamspillParticipant extends SamspillClient {
     this.host = new HostPeer();
     this.host.setStateListener(this.handleHostStateChange.bind(this));
     this.host.connect(true, (signal) => {
-      this.host.subscribe(data => {
-        this.data.next(data)
-      });
+      this.host.setDataListener(this.data.emit.bind(this.data));
       this.server.signal(signal);
     });
   }
 
-  handleHostStateChange(state, participant){
+  handleHostStateChange(state){
     if(state === "CLOSED"){
-      participant.reconnect(true);
+      this.host?.reconnect(true);
+    } else if(state === "CONNECTED"){
+      this.host?.send({type: "REQUEST_STATE"});
     }
   }
 

@@ -9,7 +9,8 @@ import { Routes, Route } from "solid-app-router";
 import {lazy} from 'solid-js';
 
 // import { About } from "./views/About";
-const About = lazy(() => import("./views/About").About);
+const About = lazy(() => import("./views/About"));
+const Demo = lazy(() => import("./views/Demo"));
 
 export function AppRoutes(){
   return <Routes>
@@ -22,6 +23,7 @@ export function AppRoutes(){
     <Route path="/show/:id" element={<View/>}/>
     <Route path="/test" element={<Test/>} />
     <Route path="/about" element={<About/>} />
+    <Route path="/demo/*" element={<Demo/>}/>
     <Route path="/" element={<Play/>} />
     <Route path="/*all" element={<NotFound />} />
   </Routes>;

@@ -1,0 +1,12 @@
+
+
+
+.host-connection-details .copy-to-clipboard {
+  margin:  0 2ch;
+}
+.host-connection-details .room-code-header .code {
+  font-size: 1.2em;
+  color: var(--theme-a-dark);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}

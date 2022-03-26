@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import { EventStream } from '../events';
 
 /**
  * Events from SignallingServer to SamspillClient
@@ -65,12 +65,12 @@ export class SignallingServer {
     name: "Template",
     description: "Description of what this signalling server is"
   }
-  events = new Subject();
+  events = new EventStream();
   emitEvent(data){
-    this.events.next(data);
+    this.events.emit(data);
   }
   addEventListener(listener){
-    return this.events.subscribe(listener);
+    return this.events.addListener(listener);
   }
 
 

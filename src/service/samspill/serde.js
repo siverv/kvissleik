@@ -21,7 +21,6 @@ export class TargetedJsonSerde extends JsonSerde {
   }
   async decode(data) {
     let {target, ...message} = await super.decode(data);
-    console.log(target, message, this.id);
     if(target != null && target != this.id){
       return null;
     } else return message;
@@ -51,7 +50,6 @@ class SomewhatSecureJsonSerde extends JsonSerde {
       targetPublicKey, 
       RSA_OPTIONS
     );
-    console.log(wrapped);
     return wrapped;
   }
 

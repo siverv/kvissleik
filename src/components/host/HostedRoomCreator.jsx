@@ -62,6 +62,7 @@ function formToConfig(form, setValidationNotes){
   const config = {};
   const formData = new FormData(form);
   let searchParams = {};
+
   
   searchParams.maxParticipants = config.maxParticipants = parseInt(formData.get("maxParticipants"));
   ok &&= setValidationNotes("maxParticipants", validateMaxParticipants(config.maxParticipants));
@@ -76,7 +77,6 @@ function formToConfig(form, setValidationNotes){
 
   searchParams.signallingServer = config.signallingServer = formData.get("signallingServer");
   let Server = getSignallingServer(config.signallingServer);
-  console.log(config.signallingServer, Server)
   let [connectionConfig, connectionConfigValidation, connectionSearchParams] = Server.HostConfigurationInput.parseFormData(formData);
   Object.assign(config, connectionConfig);
   ok &&= setValidationNotes("HostConfigurationInput", connectionConfigValidation);
@@ -92,7 +92,7 @@ export function HostConfigForm({setConfig}){
   const [searchParams, setSearchParams] = useSearchParams();
   const quizCollection = getQuizCollection();
   const [notes, setNotes] = createStore({});
-  const [showOptions, setShowOptions] = createSignal(true);
+  const [showOptions, setShowOptions] = createSignal(false);
   const [signallingServer, setSignallingServer] = createSignal({server: DefaultSignallingServer});
   const onSignallingServerChanged = (ev) => {
     let type = ev.target.value;
@@ -100,7 +100,6 @@ export function HostConfigForm({setConfig}){
   }
   const setValidationNotes = (field, notes) => {
     setNotes(field, notes);
-    console.log(notes)
     return !notes;
   }
   function onSubmit(ev){
@@ -176,9 +175,9 @@ export function HostConfigForm({setConfig}){
       <div class="entry-group more">
         <label class="label" htmlFor="stunServer" title="A STUN-server is used to help connect you to your players when they share IP-addresses with other people. Recommended for most people.">STUN-server</label>
         <select id="stunServer" name="stunServer">
-          <option value="NONE">
+          {/*<option value="NONE">
             No STUN
-          </option>
+          </option>*/}
           <option value="STUN" selected>
             STUN
           </option>

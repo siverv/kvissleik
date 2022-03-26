@@ -191,3 +191,6 @@ Moonshots:
     </section>
   </div>;
 }
+
+
+export default About;

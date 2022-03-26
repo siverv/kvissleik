@@ -1,11 +1,12 @@
 import { Show } from 'solid-js';
 import { CopyToClipboardButton } from './CopyToClipboardButton';
+import "./HostConnectionDetails.css";
 
 export function HostConnectionDetails({server}) {
-  return <>
+  return <section class="host-connection-details">
     <Show when={server.getRoomCode()}>
-      {code => <h3>
-          Room code is {code}
+      {code => <h3 class="room-code-header">
+          Room code is <span class="code">{code.split("").map(letter => <span>{letter}</span>)}</span>
         <CopyToClipboardButton getValue={() => code}>
           copy code
         </CopyToClipboardButton>
@@ -13,7 +14,7 @@ export function HostConnectionDetails({server}) {
       }
     </Show>
     <Show when={server.getRoomLink()}>
-      {link => <div>
+      {link => <div class="invite-by-link">
         <a href={link} target="_blank">
           Invite players by link
         </a>
@@ -22,5 +23,5 @@ export function HostConnectionDetails({server}) {
         </CopyToClipboardButton>
       </div>}
     </Show>
-  </>
+  </section>
 }

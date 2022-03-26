@@ -5,7 +5,7 @@ import {WebSocketSignallingServer} from './webSocketSignallingPlugin';
 
 export const signallingServers = [
   WebSocketSignallingServer,
-  LocalStorageSignallingServer,
+  // LocalStorageSignallingServer,
   // CopyPasteSignalling,
 ];
 

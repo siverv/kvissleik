@@ -1,14 +1,14 @@
 
-import {Subject, first} from 'rxjs';
+import {EventStream} from './events';
 
 export class PeerConnection {
-  signals = new Subject();
-  data = new Subject();
-  state = new Subject();
+  signals = new EventStream();
+  data = new EventStream();
+  state = new EventStream();
   currentState = null;
 
   constructor(){
-    this.state.subscribe(s => this.currentState = s);
+    this.state.addListener(state => this.currentState = state);
   }
 
   get connected() {
@@ -16,7 +16,7 @@ export class PeerConnection {
   }
 
   connect(initiator, onSignal){
-    this.state.next("CONNECTING");
+    this.state.emit("CONNECTING");
     // eslint-disable-next-line no-undef
     this.peer = new SimplePeer({
       initiator,
@@ -28,7 +28,7 @@ export class PeerConnection {
     this.peer.on('connect', this.onConnect.bind(this));
     this.peer.on('data', this.onData.bind(this));
     if(onSignal){
-      this.signals.pipe(first()).subscribe(onSignal);
+      this.signals.next().then(onSignal);
     }
   }
 
@@ -38,35 +38,35 @@ export class PeerConnection {
 
   onError(error){
     console.error(error);
-    this.state.next({error});
+    this.state.emit({error});
   }
 
   onConnect(){
     console.log("Connected");
-    this.state.next("CONNECTED");
+    this.state.emit("CONNECTED");
   }
 
   onClose(){
     this.peer = null;
     console.log("Closed");
-    this.state.next("CLOSED");
+    this.state.emit("CLOSED");
   }
 
   onSignal(signal){
-    this.signals.next(signal);
+    this.signals.emit(signal);
   }
 
   onData(data){
     try {
       const {type, payload} = JSON.parse(data.toString());
-      this.data.next({type, payload});
+      this.data.emit({type, payload});
     } catch(err) {
       console.error(err, data);
     }
   }
 
   signal(signal, onCounterSignal){
-    this.signals.pipe(first()).subscribe(onCounterSignal);
+    this.signals.next().then(onCounterSignal);
     this.peer?.signal(signal);
   }
 

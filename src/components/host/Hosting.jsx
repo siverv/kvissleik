@@ -2,15 +2,18 @@ import {onCleanup} from 'solid-js';
 import { HostedQuizController } from '../../service/hostService';
 import { QuizState } from '../../utils/controllerUtils';
 import { DisplayQuiz } from '../ui/DisplayQuiz';
+import {ParticipantList, LobbyList} from '../ui/ParticipantList';
+import "./Hosting.css";
 
 function UnexpectedErrorWhileHosting({error, reset, quit}){
+  console.error(error);
   return <>
     <details open>
       <summary>
         Something unexpected went wrong.
       </summary>
       <pre>
-        {error}
+        {error?.toString()}
       </pre>
     </details>
     <button onClick={reset}>
@@ -28,16 +31,7 @@ function HostingLobby({ctrl}){
     <p>
       {ctrl.getParticipants().length} joined out of {ctrl.getMaxParticipants()} possible.
     </p>
-    <ul>
-      <For each={ctrl.getParticipants()} fallback={"..."}>
-        {participant => <li>
-          {participant.name} [{participant.state}]
-          <button type="button" onClick={() => ctrl.kick(participant)}>
-            Kick
-          </button>
-        </li>}
-      </For>
-    </ul>
+    <LobbyList max={ctrl.getMaxParticipants()} getParticipants={ctrl.getParticipants.bind(ctrl)} kick={ctrl.kick.bind(ctrl)}/>
     <button class="start-quiz" onClick={() => ctrl.start()}>
       Start quiz
     </button>
@@ -52,14 +46,14 @@ function HostingQuestion({ctrl, question}){
     }
   }
   document.body.dataset.zen = "true";
-  window.addEventListener("click", next);
+  // window.addEventListener("click", next);
   window.addEventListener("keydown", escapeZen);
   onCleanup(() => {
-    window.removeEventListener("click", next);
+    // window.removeEventListener("click", next);
     window.removeEventListener("keydown", escapeZen);
     delete document.body.dataset.zen;
   });
-  return <>
+  return <div class="hosting-question">
     <DisplayQuiz
       question={question}
       countdown={ctrl.countdown >= 0 ? <>{Math.floor(ctrl.countdown / 1000)}</> : null}
@@ -67,33 +61,23 @@ function HostingQuestion({ctrl, question}){
       correct={question.correct}
       statistics={question.statistics}
     />
-    <p>
-      Click anywhere to continue...
-    </p>
-    <aside>
-      <ul>
-        <For each={ctrl.getCurrentStandings()}>
-          {({participantName, position, score, connectionState}) => <li>
-            #{position}: {participantName}: {score}
-            [{connectionState}]
-          </li>}
-        </For>
-      </ul>
-    </aside>
-  </>
+    <button class="continue-quiz" onClick={next}>
+      Continue
+    </button>
+    <ParticipantList limit={5}
+      getParticipants={() => ctrl.getParticipants()}
+      getCurrentStandings={() => ctrl.getCurrentStandings()}
+    />
+  </div>
 }
 
-function DisplayFinalResults({results}) {
+function DisplayFinalResults({ctrl, results}) {
   return <>
     <h3>And the results are....</h3>
-    <ul>
-      <For each={results}>
-        {({participantName, position, score, connectionState}) => <li>
-          #{position}: {participantName}: {score}
-            [{connectionState}]
-        </li>}
-      </For>
-    </ul>
+    <ParticipantList
+      getParticipants={() => ctrl.getParticipants()}
+      getCurrentStandings={() => ctrl.getCurrentStandings()}
+    />
   </>
 }
 
@@ -111,7 +95,7 @@ export function Hosting({room, quit}){
           {(question) => <HostingQuestion ctrl={ctrl} question={question}/>}
         </Match>
         <Match when={ctrl.state.name === QuizState.RESULTS}>
-          {() => <DisplayFinalResults results={ctrl.getCurrentStandings()}/>}
+          {() => <DisplayFinalResults ctrl={ctrl} results={ctrl.getCurrentStandings()}/>}
         </Match>
         <Match when={ctrl.state.name === QuizState.THE_END}>
           <h3>

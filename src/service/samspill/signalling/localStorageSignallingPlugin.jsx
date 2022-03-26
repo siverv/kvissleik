@@ -1,5 +1,4 @@
 import {SignallingServer} from './signallingPluginTemplate';
-import {first} from 'rxjs';
 import {
   generateAlphabeticalId,
   generateHostKeyPair, generateKeyId,
@@ -142,11 +141,19 @@ export class LocalStorageSignallingServer extends SignallingServer {
   }
 
   async sleep(){
+    if(this.sleeping){
+      return;
+    }
+    this.sleeping = true;
     await this.send(null, {type: "SLEEP"});
     this.emitEvent({type: "ROOM_STATE", data: "SLEEPING"});
   }
 
   async wake(){
+    if(!this.sleeping){
+      return;
+    }
+    this.sleeping = false;
     await this.send(null, {type: "WAKE"});
     this.emitEvent({type: "ROOM_STATE", data: "ACTIVE"});
   }
@@ -244,9 +251,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
   }
 
   async getEventResponse(responseTypes){
-    return await new Promise((resolve, reject) => {
-      this.events.pipe(first(event => responseTypes.includes(event.type))).subscribe(resolve);
-    });
+    return await this.events.next(event => responseTypes.includes(event.type));
   }
 
   async openChannel(config){

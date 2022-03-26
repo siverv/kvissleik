@@ -14,7 +14,6 @@ export function JoinedRoomCreator({setRoom}){
   const [denied, setDenied] = createSignal();
   const [room] = createResource(config, async (config, {value: room}) => {
     let denied = await room.initialize(config)
-    console.log("joined", denied);
     if(!denied){
       setRoom(room);
     } else {
@@ -77,7 +76,7 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
   let initialName = localStorage.getItem(SAMSPILL_PREVIOUS_NAME);
   const [searchParams, setSearchParams] = useSearchParams();
   const [notes, setNotes] = createStore({});
-  const [showOptions, setShowOptions] = createSignal(true);
+  const [showOptions, setShowOptions] = createSignal(false);
   const [signallingServer, setSignallingServer] = createSignal({server: DefaultSignallingServer});
   const onSignallingServerChanged = (ev) => {
     let type = ev.target.value;
@@ -122,10 +121,10 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
           {showOptions() ? "less" : "more"} options
         </button>
       </div>
-      <Show when={denied}>
+      <Show when={denied()}>
         <div/>
         <b class="note">
-          {denied}
+          {denied().reason}
         </b>
       </Show>
     </div>
@@ -149,9 +148,9 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
       <div class="entry-group more">
         <label class="label" htmlFor="stunServer" title="A STUN-server is used to help connect you to your players when they share IP-addresses with other people. Recommended for most people.">STUN-server</label>
         <select id="stunServer" name="stunServer">
-          <option value="NONE">
+          {/*<option value="NONE">
             No STUN
-          </option>
+          </option>*/}
           <option value="STUN" selected>
             STUN
           </option>

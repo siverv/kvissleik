@@ -1,5 +1,4 @@
 import {SignallingServer} from './signallingPluginTemplate';
-import {first} from 'rxjs';
 import {
   generateHostKeyPair, generateKeyId,
   decryptSymmetric, encryptSymmetric,
@@ -84,6 +83,10 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   async sleep(){
+    if(this.sleeping){
+      return;
+    }
+    this.sleeping = true;
     await this.send(null, {type: "SLEEP"});
     this.emitEvent({type: "ROOM_STATE", data: "SLEEPING"});
   }
@@ -93,6 +96,10 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   async wake(){
+    if(!this.sleeping){
+      return;
+    }
+    this.sleeping = false;
     await this.send(null, {type: "WAKE"});
     this.emitEvent({type: "ROOM_STATE", data: "ACTIVE"});
   }
@@ -103,6 +110,10 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   async kick(externalId){
+    let index = this.participants.findIndex(part => part.id === externalId);
+    if(index >= 0){
+      this.participants.splice(index, 1);
+    }
     await this.send(null, {type: "KICK", payload: {externalId}})
   }
 
@@ -111,10 +122,10 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   async handshake(externalId, name, password) {
-    name = await this.encryptValue(name);
     let nameHash = await hashValue(name, this.publicKey);
-    password = password && await hashValue(password, this.publicKey);
-    await this.send(null, {type: "HANDSHAKE", payload: {externalId, name, nameHash, password}});
+    let encryptedName = await this.encryptValue(name);
+    let hashedPassword = password && await hashValue(password, this.publicKey);
+    await this.send(null, {type: "HANDSHAKE", payload: {externalId, name: encryptedName, nameHash, password: hashedPassword}});
   }
 
   async signal(signal, target = "host"){
@@ -143,10 +154,9 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   async withEventResponse(send, responseTypes){
-    return await new Promise((resolve, reject) => {
-      this.events.pipe(first(event => responseTypes.includes(event.type))).subscribe(resolve);
-      send().catch(reject);
-    });
+    let promise = this.events.next(event => responseTypes.includes(event.type));
+    send();
+    return await promise;
   }
 
   async send(target, data) {
@@ -163,7 +173,7 @@ export class WebSocketSignallingServer extends SignallingServer {
         data = {content, iv};
       }
     }
-    this.webSocket.send(JSON.stringify({
+    this.webSocket?.send(JSON.stringify({
       target,
       source: this.whoami,
       data
@@ -300,7 +310,7 @@ export class WebSocketSignallingServer extends SignallingServer {
   }
 
   getRoomCode(){
-    return this.hidden ? null : this.roomCode;
+    return this.roomCode;
   }
 
   getRoomLink(){

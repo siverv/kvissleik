@@ -58,7 +58,7 @@ export async function hashValue(value, hostPublicKeyId){
       {
           name: "SHA-512",
       },
-      new Uint8Array(value + hostPublicKeyId) //The data you want to hash as an ArrayBuffer
+      new Uint8Array(str2ab(value + hostPublicKeyId)) //The data you want to hash as an ArrayBuffer
   )
   return ab2str(hash);
 }

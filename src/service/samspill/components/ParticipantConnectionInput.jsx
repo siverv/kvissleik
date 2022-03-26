@@ -10,20 +10,15 @@ export function ParticipantConnectionInput({validationNotes}) {
     <RoomCodeEntry notes={validationNotes?.roomCode} initialValue={searchParams.roomCode}/>
     <div style="margin:-1em;"/>
     <div class="entry-group password">
-      <div/><div>
-        <button type="button" onClick={() => setShowPassword(!showPassword())}>
-          {showPassword() ? "Is this an open room?" : "Is this a protected room?"}
-        </button>
-      </div><div/>
-      <Show when={showPassword()}>
+      <Show when={showPassword()} fallback={<><div/><div/></>}>
         <label class="label" htmlFor="password-entry-input">The secret word is</label>
         <input id="password-entry-input" name="password" type="password"></input>
-        <div/>
-        <div/>
-        <b class="note">
-          {validationNotes?.password}
-        </b>
       </Show>
+      <div>
+        <button type="button" onClick={() => setShowPassword(!showPassword())}>
+          {showPassword() ? "No password?" : "Use password?"}
+        </button>
+      </div>
     </div>
     <div style="margin:1em;"/>
   </>;
