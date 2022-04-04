@@ -23,7 +23,7 @@ export class WebSocketSignallingServer extends SignallingServer {
   static details = {
     name: "Samspill",
     description: "WebSocket-based",
-  }
+  };
 
   async connect(host){
     return await new Promise((resolve) => {
@@ -56,22 +56,22 @@ export class WebSocketSignallingServer extends SignallingServer {
   _onMessage = this.onMessage.bind(this);
   async onMessage(message){
     // try {
-      let {source, data} = JSON.parse(message.data);
-      if(source == null){
-        await this.handleMessage(null, data);
-      } else {
-        if(this.secure){
-          let key;
-          if(this.whoami === "host"){
-            key = await unwrapKeyIdForHost(source, this.privateKey);
-          } else {
-            key = await keyIdToActualKey(this.keyId);
-          }
-          data = await decryptSymmetric(data.content, data.iv, key);
-          data = JSON.parse(data);
+    let {source, data} = JSON.parse(message.data);
+    if(source == null){
+      await this.handleMessage(null, data);
+    } else {
+      if(this.secure){
+        let key;
+        if(this.whoami === "host"){
+          key = await unwrapKeyIdForHost(source, this.privateKey);
+        } else {
+          key = await keyIdToActualKey(this.keyId);
         }
-        this.handleMessage(source, data);
+        data = await decryptSymmetric(data.content, data.iv, key);
+        data = JSON.parse(data);
       }
+      this.handleMessage(source, data);
+    }
     // } catch(e) {
     //   console.error(e);
     // }
@@ -114,10 +114,10 @@ export class WebSocketSignallingServer extends SignallingServer {
     if(index >= 0){
       this.participants.splice(index, 1);
     }
-    await this.send(null, {type: "KICK", payload: {externalId}})
+    await this.send(null, {type: "KICK", payload: {externalId}});
   }
 
-  async join(code, version){
+  async join(code){
     await this.send(null, {type: "JOIN", payload: {code, version: samspillVersion}});
   }
 
@@ -139,7 +139,7 @@ export class WebSocketSignallingServer extends SignallingServer {
         case 'BOUNCE': throw "Not yet implemented";
         case 'DENIED': return await this.handleDenied(data.payload);
         case 'JOINED': return await this.handleJoined(data.payload);
-        case 'SIGNAL': return await this.handleSignal(source, data.payload)
+        case 'SIGNAL': return await this.handleSignal(source, data.payload);
       }
     } else {
       switch(data.type){
@@ -148,7 +148,7 @@ export class WebSocketSignallingServer extends SignallingServer {
         case 'HANDSHAKE': return await this.handleHandshake(data.payload);
         case 'ACCEPTED': return await this.handleAccepted(data.payload);
         case 'DENIED': return await this.handleDenied(data.payload);
-        case 'SIGNAL': return await this.handleSignal(source, data.payload)
+        case 'SIGNAL': return await this.handleSignal(source, data.payload);
       }
     }
   }
@@ -197,7 +197,7 @@ export class WebSocketSignallingServer extends SignallingServer {
     let [keys, _] = await Promise.all([
       generateHostKeyPair(this.roomKey),
       this.connect(true)
-    ])
+    ]);
     this.privateKey = keys.privateKey;
     this.publicKey = keys.publicKey;
     const settings = {
@@ -222,7 +222,7 @@ export class WebSocketSignallingServer extends SignallingServer {
     let [keyId, _] = await Promise.all([
       generateKeyId(this.roomKey),
       this.connect(false)
-    ])
+    ]);
     this.keyId = keyId;
     this.roomCode = config.roomCode;
     let response = await this.withEventResponse(
@@ -273,7 +273,7 @@ export class WebSocketSignallingServer extends SignallingServer {
     return {
       id: participant.id,
       name: await this.decryptValue(participant.name, participant.id)
-    }
+    };
   }
 
   async handleHandshake(handshake){
@@ -320,7 +320,7 @@ export class WebSocketSignallingServer extends SignallingServer {
     if(this.config.password){
       searchParams.set("hasPassword", true);
     }
-    return `${window.location.origin}/play?${searchParams.toString()}`
+    return `${window.location.origin}/play?${searchParams.toString()}`;
   }
 }
 

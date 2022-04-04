@@ -1,4 +1,5 @@
 import { sanitizeHTML, sanitizePlaintext } from "../utils/textUtils";
+import defaultQuiz from '../assets/default-quiz.json';
 
 
 export function newId(segments = 4) {
@@ -7,7 +8,7 @@ export function newId(segments = 4) {
   let id = "";
   for (let i = 0; i < array.length; i++) {
     id += (i ? "-" : "") + array[i].toString(36);
-  }
+  } 
   return id;
 }
 
@@ -26,14 +27,6 @@ export function createNewQuestion(){
   };
 }
 
-export function createDummyQuiz(){
-  return {
-    id: newId(),
-    name: "Dummy quiz",
-    questions: Array.from({length: 3}).map(createNewQuestion)
-  };
-}
-
 export function createQuiz(){
   return {
     id: newId(),
@@ -44,13 +37,22 @@ export function createQuiz(){
   };
 }
 
-export function duplicateQuiz(quiz){
+export function createDefaultQuiz(){
+  return duplicateQuiz(defaultQuiz);
+}
+
+export function duplicateQuiz(quiz, keepName=false){
   let idMap = new Map();
   function convertId(id) {
     return idMap.get(id) || idMap.set(id, newId()).get(id);
   }
-  let isACopiedName = quiz.name.match(/ #(\d+)$/);
-  let name = isACopiedName ? quiz.name.replace(/ #\d+$/, " #" + (parseInt(isACopiedName[1]) + 1)) : quiz.name + " #2";
+  let name;
+  if(keepName){
+    name = quiz.name;
+  } else {
+    let isACopiedName = quiz.name.match(/ #(\d+)$/);
+    name = isACopiedName ? quiz.name.replace(/ #\d+$/, " #" + (parseInt(isACopiedName[1]) + 1)) : quiz.name + " #2";
+  }
   return {
     id: convertId(quiz.id),
     name: sanitizePlaintext(name),
@@ -59,6 +61,7 @@ export function duplicateQuiz(quiz){
         ...question,
         text: sanitizeHTML(question.text || ""),
         id: convertId(question.id),
+        correct: question.correct && convertId(question.correct),
         alternatives: question.alternatives.map(alt => {
           return {
             ...alt,

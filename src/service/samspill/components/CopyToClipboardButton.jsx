@@ -13,5 +13,5 @@ export function CopyToClipboardButton({children, getValue, ...props}){
   });
   return <button class="copy-to-clipboard" type="button" onClick={copyToClipboard} {...props}>
     {copied() ? "copied!" : (children || "copy")}
-  </button>
+  </button>;
 }

@@ -1,7 +1,6 @@
 import { batch, observable, createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { Durations, QuizState } from '../utils/controllerUtils';
-import { addSignal } from '../utils/solidUtils';
 import {initialState} from './hostService';
 
 
@@ -39,7 +38,7 @@ export class JoinedQuizController {
     return this.quizSignal[0]();
   }
   set quiz(value){
-    return this.quizSignal[1](value);
+    this.quizSignal[1](value);
   }
   store = createStore({
     score: {total: 0, added: 0, position: 0},
@@ -49,19 +48,19 @@ export class JoinedQuizController {
     return this.store[0].answerMap;
   }
   set answerMap(value){
-    return this.store[1]("answerMap", new Map(value));
+    this.store[1]("answerMap", new Map(value));
   }
   get score(){
     return this.store[0].score;
   }
   set score(value){
-    return this.store[1]("score", value);
+    this.store[1]("score", value);
   }
   get currentStandings(){
     return this.store[0].currentStandings;
   }
   set currentStandings(value){
-    return this.store[1]("currentStandings", value);
+    this.store[1]("currentStandings", value);
   }
 
   countdownSignal = createSignal();
@@ -69,7 +68,7 @@ export class JoinedQuizController {
     return this.countdownSignal[0]();
   }
   set countdown(value){
-    return this.countdownSignal[1]();
+    this.countdownSignal[1]();
   }
 
   get state(){
@@ -77,7 +76,7 @@ export class JoinedQuizController {
   }
 
   set state(value){
-    return this.quizState.setState(value);
+    this.quizState.setState(value);
   }
 
   constructor(room){
@@ -109,7 +108,7 @@ export class JoinedQuizController {
           }
         }, 1000);
       }
-    })
+    });
   }
 
   getCurrentQuestion(){
@@ -126,26 +125,26 @@ export class JoinedQuizController {
         ...currentQuestion,
         alternatives: [],
         correct: null
-      }
+      };
       case QuizState.ALTERNATIVES: return {
         ...currentQuestion,
         correct: null,
-      }
+      };
       case QuizState.VALIDATION: return {
         ...currentQuestion
-      }
+      };
       case QuizState.STATISTICS: {
         return {
           ...currentQuestion,
           score: this.score
-        }
+        };
       }
     }
     return null;
   }
 
   getParticipants(){
-    return [] //this.room.getParticipants();
+    return []; //this.room.getParticipants();
   }
 
   getMaxParticipants(){
@@ -170,7 +169,7 @@ export class JoinedQuizController {
       batch(() => {
         this.quizState.restoreState(payload);
         this.quiz = this.updateQuiz(this.quiz, payload);
-      })
+      });
     } else if(type === "STATISTICS") {
       const {position, total, added, currentStandings} = payload;
       this.score = {
@@ -186,12 +185,11 @@ export class JoinedQuizController {
         total,
         position
       };
-      this.currentStandings;
+      this.currentStandings = currentStandings;
     }
   }
 
   updateQuiz(quiz, state){
-    const {name, data} = state;
     let questionId = state.data.question?.id;
     let question = quiz.questions.find(q => q.id === questionId);
     if(!question){
@@ -207,10 +205,10 @@ export class JoinedQuizController {
             return {
               ...q,
               ...state.data.question
-            }
+            };
           } else return q;
         })
-      }
+      };
     } else return quiz;
   }
 

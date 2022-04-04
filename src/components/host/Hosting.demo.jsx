@@ -1,10 +1,7 @@
-import {onCleanup} from 'solid-js';
-import { HostedQuizController } from '../../service/hostService';
-import { QuizState } from '../../utils/controllerUtils';
 import { DisplayQuiz } from '../ui/DisplayQuiz';
 import {createNewQuestion} from '../../service/makeService';
-import {ParticipantList, LobbyList} from '../ui/ParticipantList';
-import {MockParticipant} from '../ui/ParticipantList.demo'
+import {ParticipantList} from '../ui/ParticipantList';
+import {MockParticipant} from '../ui/ParticipantList.demo';
 import "./Hosting.css";
 
 export const label = "Hosting";
@@ -37,6 +34,6 @@ export const examples = [
           getCurrentStandings={() => standings}
         />
       </div>
-    </div>
+    </div>;
   }
-]
+];

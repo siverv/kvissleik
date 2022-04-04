@@ -6,14 +6,14 @@ import { RadioGroup } from '../../service/samspill/components/RadioGroup';
 import DefaultSignallingServer, { getSignallingServer, getSignallingServerOptions } from '../../service/samspill/signalling';
 import './PlayForm.css';
 
-const SAMSPILL_PREVIOUS_NAME = "SAMSPILL_PREVIOUS_NAME"
+const SAMSPILL_PREVIOUS_NAME = "SAMSPILL_PREVIOUS_NAME";
 
 
 export function JoinedRoomCreator({setRoom}){
   const [config, setConfig] = createSignal();
   const [denied, setDenied] = createSignal();
   const [room] = createResource(config, async (config, {value: room}) => {
-    let denied = await room.initialize(config)
+    let denied = await room.initialize(config);
     if(!denied){
       setRoom(room);
     } else {
@@ -36,15 +36,15 @@ export function JoinedRoomCreator({setRoom}){
           <pre>
             {room.error.toString()}
           </pre>
-        </details>
+        </details>;
       }}
     </Show>
-  </section>
+  </section>;
 }
 
 function validateName(name){
   if(!name){
-    return "You need a name"
+    return "You need a name";
   } else if(!name.match(/^.{1,20}$/)){
     return "Name needs to be between 1 and 20 characters";
   }
@@ -81,11 +81,11 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
   const onSignallingServerChanged = (ev) => {
     let type = ev.target.value;
     setSignallingServer({server: getSignallingServer(type)});
-  }
+  };
   const setValidationNotes = (field, notes) => {
     setNotes(field, notes);
     return !notes;
-  }
+  };
   function onSubmit(ev){
     ev.preventDefault();
     if(isLoading()){
@@ -96,7 +96,7 @@ export function JoinConfigForm({isLoading, setConfig, denied}){
       localStorage.setItem(SAMSPILL_PREVIOUS_NAME, config.name);
       setSearchParams({
         ...searchParams
-      })
+      });
       setConfig(config);
     }
   }

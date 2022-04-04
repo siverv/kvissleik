@@ -1,8 +1,6 @@
-import { createSignal } from 'solid-js';
 import { RadioGroup } from './RadioGroup';
 
 export function HostConfigurationInput({validationNotes}) {
-  const [isRoomCode, setIsRoomCode] = createSignal(true);
   return <>
     <div class="entry-group password">
       <label class="label" htmlFor="signallingConfig_password">Protect the room with a secret password</label>
@@ -15,17 +13,17 @@ export function HostConfigurationInput({validationNotes}) {
     <div class="entry-group modes">
       <label class="label" htmlFor="signallingServerGroup">How would you like your room?</label>
       <RadioGroup name="signallingConfig_roomCodeType" initialValue="ROOM_CODE" options={[
-          {value: "ROOM_CODE", label: "Room Code", description: "A 4-letter room code is all that's required to join."},
-          {value: "HIDDEN", label: "Hidden Room", description: "An unguessable room code, which can be shared by link."},
-          // {value: "SECURE", label: "Secure Room", description: "Encrypted metadata, not just encrypted pload. Requires link."},
-      ]} onInput={ev => setIsRoomCode(ev.target.value === "ROOM_CODE")}/>
+        {value: "ROOM_CODE", label: "Room Code", description: "A 4-letter room code is all that's required to join."},
+        {value: "HIDDEN", label: "Hidden Room", description: "An unguessable room code, which can be shared by link."},
+        // {value: "SECURE", label: "Secure Room", description: "Encrypted metadata, not just encrypted pload. Requires link."},
+      ]}/>
       <div/>
       <div/>
       <b class="note">
         {validationNotes?.roomCodeType}
       </b>
     </div>
-  </>
+  </>;
 }
 HostConfigurationInput.parseFormData = function(formData) {
   let validationNotes = null;
@@ -50,5 +48,5 @@ HostConfigurationInput.parseFormData = function(formData) {
     config,
     validationNotes,
     searchParams
-  ]
-}
+  ];
+};

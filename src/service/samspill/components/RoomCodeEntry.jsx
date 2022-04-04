@@ -47,14 +47,14 @@ export function FourSymbolCodeInput({initialValue, setMoreLetters}){
       onInput={ifFilledMoveToNext}
       maxLength={1}
       {...props}
-    />
-  }
+    />;
+  };
   return <div class="code-entry-input">
-    <Input autofocus={true} id="code" placeholder="A" value={initialValue?.[0]}/>
+    <Input id="code" placeholder="A" value={initialValue?.[0]}/>
     <Input placeholder="B" value={initialValue?.[1]}/>
     <Input placeholder="C" value={initialValue?.[2]}/>
     <Input placeholder="D" value={initialValue?.[3]}/>
-  </div>
+  </div>;
 }
 
 export function RoomCodeEntry({initialValue, note}){
@@ -65,7 +65,7 @@ export function RoomCodeEntry({initialValue, note}){
     } else {
       return initialValue || null;
     }
-  })
+  });
   return <div class="room-code-entry entry-group code">
     <input type="hidden" name="code_moreLetters" value={moreLetters()}/>
     <label class="label" htmlFor="code">Enter the room code</label>
@@ -79,7 +79,6 @@ export function RoomCodeEntry({initialValue, note}){
         </div>
         <input type="text" id="code"
           ref={elm => setTimeout(() => elm.focus(), 0)}
-          autoFocus={true}
           name="longCode"
           placeholder="ABCDEF..."
           value={getInitialValue()}/>
@@ -94,7 +93,7 @@ export function RoomCodeEntry({initialValue, note}){
     <b class="note">
       {note}
     </b>
-  </div>
+  </div>;
 }
 RoomCodeEntry.parseFormData = function (formData) {
   let moreLetters = formData.get("code_moreLetters") === "true";
@@ -103,4 +102,4 @@ RoomCodeEntry.parseFormData = function (formData) {
   } else {
     return formData.getAll("code").join("").toUpperCase();
   }
-}
+};

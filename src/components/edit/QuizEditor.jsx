@@ -82,7 +82,7 @@ export function QuizEditor({quiz: originalQuiz, saveQuiz, goBack}){
     </aside>
     <section class="question-editor">
       <Show when={store.currentQuestion}>
-        <QuestionEditor getQuestion={createMemo(() => store.currentQuestion)} updateValue={(value, ...fields) => setStore("quiz", "questions", store.currentIndex, ...fields, value)}/>
+        {question => <QuestionEditor getQuestion={() => question} updateValue={(value, ...fields) => setStore("quiz", "questions", store.currentIndex, ...fields, value)}/>}
       </Show>
     </section>
     {/* <aside class="quiz-properties">

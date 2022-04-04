@@ -1,5 +1,5 @@
-import { createSignal, observable } from 'solid-js';
-import { getSignallingServer } from './signalling'
+import { createSignal } from 'solid-js';
+import { getSignallingServer } from './signalling';
 import { PeerConnection } from './peer';
 import { EventStream } from './events';
 
@@ -13,15 +13,6 @@ class SamspillPeer {
     this.id = id;
     this.peer = new PeerConnection();
     this.removePeerStateSignal = this.peer.state.intoSignal(this.stateSignal);
-    // setInterval(() => {
-    //   console.log("PING");
-    //   this.peer.send("HEARTBEAT", {});
-    // }, 1000);
-    // this.peer.data.addListener(data => {
-    //   if(data.type === "HEARTBEAT"){
-    //     console.log("PONG")
-    //   }
-    // })
   }
 
   connect(initiator, onSignal){
@@ -120,7 +111,7 @@ export class SamspillHost extends SamspillClient {
   addParticipant(participant){
     participant.connect(false);
     participant.setStateListener((state) => {
-      this.handleParticipantStateChange(state, participant)
+      this.handleParticipantStateChange(state, participant);
     });
     this.participantMapSignal[1](
       new Map(this.participantMap).set(participant.id, participant)
@@ -162,7 +153,7 @@ export class SamspillHost extends SamspillClient {
   }
 
   getParticipants(){
-    return Array.from(this.participantMap.values())
+    return Array.from(this.participantMap.values());
   }
 
   handleEvent(event){
@@ -179,7 +170,7 @@ export class SamspillHost extends SamspillClient {
       participant.signal(signal, (counterSignal) => {
         participant.setDataListener(data => {
           this.data.emit({participant, ...data});
-        })
+        });
         this.server.signal(counterSignal, source);
       });
     }
@@ -188,7 +179,7 @@ export class SamspillHost extends SamspillClient {
   handleParticipantsEvent(participants){
     let map = this.participantMap;
     for(let {id, name} of participants){
-      let existing = this.participantMap.get(id);
+      let existing = map.get(id);
       if(!existing){
         this.addParticipant(new ParticipantPeer(id, name));
       } else if(existing.name != name){
@@ -210,7 +201,7 @@ export class SamspillHost extends SamspillClient {
   }
 
   broadcast(type, payload){
-    for(let [id, participant] of this.participantMap){
+    for(let [_id, participant] of this.participantMap){
       participant.send(type, payload);
     }
   }

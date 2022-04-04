@@ -1,6 +1,6 @@
-import {createSignal, createResource, onCleanup} from 'solid-js';
+import {createSignal, createResource} from 'solid-js';
 import {createStore} from 'solid-js/store';
-import { createDummyQuiz } from "../../service/makeService";
+import { createDefaultQuiz } from "../../service/makeService";
 import { getQuizCollection } from "../../service/storageService";
 import { SamspillHost } from '../../service/samspill/samspill';
 import {useSearchParams} from 'solid-app-router';
@@ -32,10 +32,10 @@ export function HostedRoomCreator({setRoom}){
           <pre>
             {room.error.toString()}
           </pre>
-        </details>
+        </details>;
       }}
     </Show>
-  </section>
+  </section>;
 }
 
 function validateMaxParticipants(maxParticipants){
@@ -68,7 +68,7 @@ function formToConfig(form, setValidationNotes){
   ok &&= setValidationNotes("maxParticipants", validateMaxParticipants(config.maxParticipants));
   searchParams.quizId = config.selectedQuiz = formData.get("selectedQuiz");
   if(config.selectedQuiz === "DEFAULT"){
-    config.quiz = createDummyQuiz();
+    config.quiz = createDefaultQuiz();
   } else {
     config.quiz = getQuizCollection().get(config.selectedQuiz);
   }
@@ -81,7 +81,7 @@ function formToConfig(form, setValidationNotes){
   Object.assign(config, connectionConfig);
   ok &&= setValidationNotes("HostConfigurationInput", connectionConfigValidation);
 
-  Object.assign(searchParams, connectionSearchParams)
+  Object.assign(searchParams, connectionSearchParams);
 
   searchParams.stunServer = config.stunServer = formData.get("stunServer");
 
@@ -97,18 +97,18 @@ export function HostConfigForm({setConfig}){
   const onSignallingServerChanged = (ev) => {
     let type = ev.target.value;
     setSignallingServer({server: getSignallingServer(type)});
-  }
+  };
   const setValidationNotes = (field, notes) => {
     setNotes(field, notes);
     return !notes;
-  }
+  };
   function onSubmit(ev){
     ev.preventDefault();
     const [config, ok, searchParams] = formToConfig(ev.target, setValidationNotes);
     if(ok){
       setSearchParams({
         ...searchParams
-      })
+      });
       setConfig(config);
     }
   }
@@ -118,7 +118,7 @@ export function HostConfigForm({setConfig}){
     <div class="entry-group select-quiz">
       <label class="label" htmlFor="selectedQuiz">What do you want to play today?</label>
       <select id="selectedQuiz" name="selectedQuiz">
-        <For each={quizCollection.list()} fallback={<option value="DEFAULT" selected>The dummy quiz</option>}>
+        <For each={quizCollection.list()} fallback={<option value="DEFAULT" selected>The Default Quiz</option>}>
           {(quiz) => {
             return <option value={quiz.id} selected={searchParams.quizId == quiz.id}>
               {quiz.name}

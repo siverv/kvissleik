@@ -9,11 +9,11 @@ export function Host(){
     let currentRoom = room();
     setRoom(null);
     await currentRoom.destroy();
-  }
+  };
   return <div class="view host-view">
     <Show when={room()}
       fallback={<HostedRoomCreator setRoom={setRoom}/>}>
       {(room) => <Hosting room={room} quit={quit}/>}
     </Show>
-  </div>
+  </div>;
 }

@@ -10,5 +10,5 @@ export function Play(){
       fallback={<JoinedRoomCreator setRoom={setRoom}/>}>
       {(room) => <Playing room={room} quit={() => setRoom(null)}/>}
     </Show>
-  </div>
+  </div>;
 }

@@ -15,6 +15,11 @@ export default defineConfig({
       }
     }),
   ],
+  define: {
+    // eslint-disable-next-line no-undef
+    '__APP_VERSION__': JSON.stringify(process.env.npm_package_version),
+    '__APP_BUILD_TIME__': Date.now()
+  },
   build: {
     target: "esnext",
     polyfillDynamicImport: false,

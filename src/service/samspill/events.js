@@ -26,10 +26,10 @@ export class EventStream {
       let cleanup;
       cleanup = this.addListener((event) => {
         if(predicate ? predicate(event) : true){
-          cleanup()
+          cleanup();
           resolve(event);
         }
-      })
+      });
     });
   }
 

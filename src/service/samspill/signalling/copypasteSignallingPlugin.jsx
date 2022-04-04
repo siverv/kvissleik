@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import {createSignal, observable, onCleanup} from 'solid-js';
 import { CopyToClipboardButton } from '../components/CopyToClipboardButton';
 import {SignallingServer} from './signallingPluginTemplate';
@@ -21,13 +23,13 @@ export class CopyPasteSignalling extends SignallingServer {
       destroy: () => {}, // remove textarea.
       sleep: () => {}, // hide textarea
       wake: () => {}, // show textarea
-    }
+    };
   }
   openChannel(){
     // Display textarea for pasting.
     return {
       close: () => {} // remove textarea
-    }
+    };
   }
   send(target, data){
     // Display HTML about what to copy and who to paste it to.
@@ -47,16 +49,16 @@ CopyPasteSignalling.ParticipantConnectionInput = function() {
     from host again:
     <textarea>
     </textarea>
-  </div>
-}
+  </div>;
+};
 CopyPasteSignalling.ParticipantConnectionInput.parseFormData = function(formData) {
   const validationMap = null;
   const connectionDetails = {};
   return [
     connectionDetails,
     validationMap
-  ]
-}
+  ];
+};
 
 CopyPasteSignalling.HostConnectionDetails = function({server}) {
   return <>
@@ -98,5 +100,5 @@ CopyPasteSignalling.HostConnectionDetails = function({server}) {
         </li>
       </ul>
     </div>
-  </>
-}
+  </>;
+};

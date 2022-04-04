@@ -11,10 +11,10 @@ export function DisplayDemo({demo}){
         return <section class="example">
           {<h3 id={example.name}>{example.name}</h3>}
           <Dynamic component={example}/>
-        </section>
+        </section>;
       }}
     </For>
-  </article>
+  </article>;
 }
 
 export function Demo(){
@@ -39,7 +39,7 @@ export function Demo(){
                         <NavLink href={`/demo/${demo.slug}#${example.name}`}>
                           {example.name}
                         </NavLink>
-                      </li>
+                      </li>;
                     }}
                   </For>
                 </ul>
@@ -52,7 +52,7 @@ export function Demo(){
     <Routes>
       {Object.values(demos).map(demo => <Route path={`/${demo.slug}`} element={<Dynamic component={DisplayDemo} demo={demo}/>}/>)}
     </Routes>
-  </div>
+  </div>;
 }
 
-export default Demo
+export default Demo;

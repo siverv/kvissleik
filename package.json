@@ -1,13 +1,15 @@
 {
   "name": "kvissleik",
-  "version": "0.0.2-alpha",
-  "description": "Quiz web-app using SolidJS and WebRTC",
+  "private": true,
+  "version": "0.0.2",
+  "description": "Quiz web-app with a single host and multiple clients, using WebRTC",
+  "license" : "GPL-3.0-or-later",
   "scripts": {
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint src/index.jsx"
+    "lint": "eslint \"src/**/*.jsx\" \"src/**/*.js\""
   },
   "devDependencies": {
     "eslint": "^8.12.0",

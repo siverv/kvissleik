@@ -14,7 +14,7 @@ const samspillVersion = import.meta.env.VITE_SAMSPILL_VERSION;
 const roomPrefix = "SAMSPILL_ROOM";
 
 class LocalStorageAppendLog {
-  constructor(identity, logId, interval = 1000, secure=false){
+  constructor(identity, logId, interval = 1000){
     this.identity = identity;
     let date = new Date();
     let dateString = date.getFullYear()
@@ -83,9 +83,9 @@ class LocalStorageAppendLog {
     return () => {
       let index = this.listeners.indexOf(callback);
       if(index >= 0){
-        this.listeners.splice(index, 1)
+        this.listeners.splice(index, 1);
       }
-    }
+    };
   }
   create(){
     localStorage.setItem(this.logId, "[]");
@@ -120,7 +120,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
   }
 
   cleanup(){
-    this.appendLog.cleanup()
+    this.appendLog.cleanup();
   }
 
 
@@ -171,7 +171,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
     await this.send(target, {type: "DENIED", payload: reasons});
   }
 
-  async kick(externalId){
+  async kick(_externalId){
     // TODO
   }
 
@@ -210,7 +210,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
     } else {
       switch(data.type){
         case 'HOST': return await this.handleHost(data.payload);
-        case 'SIGNAL': return await this.handleSignal(source, data.payload)
+        case 'SIGNAL': return await this.handleSignal(source, data.payload);
         case 'DENIED': return await this.handleDenied(data.payload);
         case "SLEEP": return this.emitEvent({type: "ROOM_STATE", data: "SLEEPING"});
         case "WAKE": return this.emitEvent({type: "ROOM_STATE", data: "ACTIVE"});
@@ -272,7 +272,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
     let signal = await new Promise((resolve) => {
       this.resolveSignal = resolve;
       this.emitEvent({type: "ACCEPTED", data: {type: this.room.settings.type}});
-    })
+    });
 
     await this.joinHandshake(this.externalId, config.name, config.password, signal);
     response = await this.getEventResponse(["SIGNAL", "DENIED"]);
@@ -308,7 +308,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
     }
     let problems = this.validateJoinRequest(externalId, name, password);
     if(problems.length > 0){
-      return this.denied(problems)
+      return this.denied(problems);
     }
     this.setParticipant(externalId, name);
     this.handleSignal(externalId, signal);
@@ -369,7 +369,7 @@ export class LocalStorageSignallingServer extends SignallingServer {
     if(this.password){
       searchParams.set("hasPassword", true);
     }
-    return `${window.location.origin}/play?${searchParams.toString()}`
+    return `${window.location.origin}/play?${searchParams.toString()}`;
   }
 
   async send(target, data){

@@ -26,16 +26,16 @@ export function alnumToArrayBuffer(alnum){
 export async function generateKeyId(){
   let key = await crypto.subtle.generateKey(
     {
-        name: "AES-GCM",
-        length: 256, //can be  128, 192, or 256
+      name: "AES-GCM",
+      length: 256, //can be  128, 192, or 256
     },
     true, //whether the key is extractable (i.e. can be used in exportKey)
     ["encrypt", "decrypt", "wrapKey", "unwrapKey"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
   );
   let raw = await crypto.subtle.exportKey(
-      "raw", //can be "jwk" or "raw"
-      key //extractable must be true
-  )
+    "raw", //can be "jwk" or "raw"
+    key //extractable must be true
+  );
   return arrayBufferToAlnum(raw);
 }
 
@@ -43,23 +43,23 @@ export async function generateKeyId(){
 export async function keyIdToActualKey(keyId){
   let rawKeyData = alnumToArrayBuffer(keyId).buffer;
   return await crypto.subtle.importKey(
-      "raw", //can be "jwk" or "raw"
-      rawKeyData,
-      {   //this is the algorithm options
-          name: "AES-GCM",
-      },
-      true, //whether the key is extractable (i.e. can be used in exportKey)
-      ["encrypt", "decrypt", "wrapKey", "unwrapKey"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+    "raw", //can be "jwk" or "raw"
+    rawKeyData,
+    {   //this is the algorithm options
+      name: "AES-GCM",
+    },
+    true, //whether the key is extractable (i.e. can be used in exportKey)
+    ["encrypt", "decrypt", "wrapKey", "unwrapKey"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
   );
 }
 
 export async function hashValue(value, hostPublicKeyId){
   let hash = await crypto.subtle.digest(
-      {
-          name: "SHA-512",
-      },
-      new Uint8Array(str2ab(value + hostPublicKeyId)) //The data you want to hash as an ArrayBuffer
-  )
+    {
+      name: "SHA-512",
+    },
+    new Uint8Array(str2ab(value + hostPublicKeyId)) //The data you want to hash as an ArrayBuffer
+  );
   return ab2str(hash);
 }
 
@@ -69,13 +69,13 @@ export async function publicKeyIdToActualKey(publicKeyId){
     "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
     publicKeyBuffer,
     {   //these are the algorithm options
-        name: "RSA-OAEP",
-        hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+      name: "RSA-OAEP",
+      hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
     },
     true, //whether the key is extractable (i.e. can be used in exportKey)
     ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
-                //"decrypt" or "unwrapKey" for private key imports
-  )
+    //"decrypt" or "unwrapKey" for private key imports
+  );
 }
 const RSA_CONFIG = {
   name: "RSA-OAEP",
@@ -88,25 +88,25 @@ export async function wrapKeyIdForHost(keyId, publicKeyId){
   let key = await keyIdToActualKey(keyId);
   let publicKey = await publicKeyIdToActualKey(publicKeyId);
   let wrappedKey = await crypto.subtle.wrapKey(
-      "raw", //can be "jwk" or "raw"
-      key,
-      publicKey, //the private key with "unwrapKey" usage flag
-      RSA_CONFIG
+    "raw", //can be "jwk" or "raw"
+    key,
+    publicKey, //the private key with "unwrapKey" usage flag
+    RSA_CONFIG
   );
   return arrayBufferToAlnum(wrappedKey);
 }
 export async function unwrapKeyIdForHost(keyId, privateKey){
   let rawKeyData = alnumToArrayBuffer(keyId).buffer;
   return await crypto.subtle.unwrapKey(
-      "raw", //can be "jwk" or "raw"
-      rawKeyData,
-      privateKey, //the private key with "unwrapKey" usage flag
-      RSA_CONFIG,
-      {   //this is the algorithm options
-          name: "AES-GCM",
-      },
-      true, //whether the key is extractable (i.e. can be used in exportKey)
-      ["encrypt", "decrypt", "wrapKey", "unwrapKey"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+    "raw", //can be "jwk" or "raw"
+    rawKeyData,
+    privateKey, //the private key with "unwrapKey" usage flag
+    RSA_CONFIG,
+    {   //this is the algorithm options
+      name: "AES-GCM",
+    },
+    true, //whether the key is extractable (i.e. can be used in exportKey)
+    ["encrypt", "decrypt", "wrapKey", "unwrapKey"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
   );
 }
 
@@ -147,7 +147,7 @@ export async function generateHostKeyPair(roomKey){
   return {
     privateKey,
     publicKey: arrayBufferToAlnum(exportablePublicKey)
-  }
+  };
 }
 
 
@@ -155,33 +155,33 @@ const enc = new TextEncoder(); // always utf-8
 const dec = new TextDecoder(enc.encoding); // always utf-8
 
 export async function encryptSymmetric(data, key){
-  let iv = crypto.getRandomValues(new Uint8Array(12))
+  let iv = crypto.getRandomValues(new Uint8Array(12));
   let buffer = await crypto.subtle.encrypt(
-      {
-          name: "AES-GCM",
+    {
+      name: "AES-GCM",
 
-          //Don't re-use initialization vectors!
-          //Always generate a new iv every time your encrypt!
-          //Recommended to use 12 bytes length
-          iv,
+      //Don't re-use initialization vectors!
+      //Always generate a new iv every time your encrypt!
+      //Recommended to use 12 bytes length
+      iv,
 
-          //Tag length (optional)
-          tagLength: 128, //can be 32, 64, 96, 104, 112, 120 or 128 (default)
-      },
-      key, //from generateKey or importKey above
-      enc.encode(data).buffer //ArrayBuffer of the data
+      //Tag length (optional)
+      tagLength: 128, //can be 32, 64, 96, 104, 112, 120 or 128 (default)
+    },
+    key, //from generateKey or importKey above
+    enc.encode(data).buffer //ArrayBuffer of the data
   );
   return [ab2str(buffer), ab2str(iv)];
 }
 export async function decryptSymmetric(data, iv, key){
   let buffer = await crypto.subtle.decrypt(
-      {
-          name: "AES-GCM",
-          iv: str2ab(iv), //The initialization vector you used to encrypt
-          tagLength: 128, //The tagLength you used to encrypt (if any)
-      },
-      key, //from generateKey or importKey above
-      str2ab(data) //ArrayBuffer of the data
+    {
+      name: "AES-GCM",
+      iv: str2ab(iv), //The initialization vector you used to encrypt
+      tagLength: 128, //The tagLength you used to encrypt (if any)
+    },
+    key, //from generateKey or importKey above
+    str2ab(data) //ArrayBuffer of the data
   );
   return dec.decode(buffer);
 }

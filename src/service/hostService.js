@@ -35,7 +35,7 @@ class HostQuizState {
       case QuizState.ALTERNATIVES: return this.showValidation(state);
       case QuizState.VALIDATION: return this.showStatistics(state);
       case QuizState.STATISTICS: return this.nextQuestion(state);
-      case QuizState.RESULTS: return this.theEnd()
+      case QuizState.RESULTS: return this.theEnd();
     }
     return state;
   }
@@ -114,7 +114,7 @@ class HostQuizState {
         statisticsTimestamp: new Date().toISOString(),
       },
       timestamp: new Date().toISOString()
-    }
+    };
   }
 
   showResults(){
@@ -124,7 +124,7 @@ class HostQuizState {
         resultsTimestamp: new Date().toISOString(),
       },
       timestamp: new Date().toISOString()
-    }
+    };
   }
 
   theEnd(){
@@ -212,7 +212,7 @@ class ResultState {
 
   getQuestionStatistics(questionId){
     return Array.from(this.questionStateMap.get(questionId)?.values() || [])
-        .reduce((map, {answer}) => map.set(answer, (map.get(answer)||0) + 1), new Map());
+      .reduce((map, {answer}) => map.set(answer, (map.get(answer)||0) + 1), new Map());
   }
 }
 
@@ -222,7 +222,7 @@ export class HostedQuizController {
     return this.countdownSignal[0]();
   }
   set countdown(value){
-    return this.countdownSignal[1](value);
+    this.countdownSignal[1](value);
   }
 
   constructor(room){
@@ -285,11 +285,11 @@ export class HostedQuizController {
           }
         }, 1000);
       }
-    })
+    });
   }
 
   broadcastState(){
-    let previousStateData;
+    // let previousStateData;
     return this.quizState.subscribe((state) => {
       let data = state.data;
       // if([QuizState.ALTERNATIVES, QuizState.VALIDATION, QuizState.STATISTICS].includes(state.name)){
@@ -298,8 +298,8 @@ export class HostedQuizController {
       //   data = state.data;
       // }
       this.room.broadcast("STATE", {...state, data});
-      previousStateData = data;
-    })
+      // previousStateData = data;
+    });
   }
 
   sendStatistics(){
@@ -318,7 +318,7 @@ export class HostedQuizController {
           });
         }
       }
-    })
+    });
   }
 
   sendResults(){
@@ -331,11 +331,11 @@ export class HostedQuizController {
           participant.send("RESULTS", {
             position: resultList.findIndex(a => a[0] === participant.id) + 1,
             total: totalScoreMap.get(participant.id),
-            currentStandings: this.getCurrentStandings()
+            currentStandings
           });
         }
       }
-    })
+    });
   }
 
   handleMessage({participant, type, payload}) {
@@ -363,19 +363,19 @@ export class HostedQuizController {
         ...currentQuestion,
         alternatives: [],
         correct: null
-      }
+      };
       case QuizState.ALTERNATIVES: return {
         ...currentQuestion,
         correct: null,
-      }
+      };
       case QuizState.VALIDATION: return {
         ...currentQuestion
-      }
+      };
       case QuizState.STATISTICS: {
         return {
           ...currentQuestion,
           statistics: this.resultState.getQuestionStatistics(questionId)
-        }
+        };
       }
     }
     return null;
@@ -408,7 +408,7 @@ export class HostedQuizController {
     let questionId = this.state.data.question?.id;
     const shouldIncludeCurrentQuestion = this.state.name === QuizState.STATISTICS;
     const getScoreForCurrentQuestion = pId => scoreMap.get(pId)?.get(questionId);
-    return resultList.map(([pId, score], index) => {
+    return resultList.map(([pId, score]) => {
       let participant = participants.find(p => p.id === pId);
       let scoreForCurrentQuestion = getScoreForCurrentQuestion(pId);
       return {
@@ -417,8 +417,8 @@ export class HostedQuizController {
         score: score,
         added: shouldIncludeCurrentQuestion ? scoreForCurrentQuestion : undefined,
         position: resultList.findIndex(([_, s]) => s <= score) + 1
-      }
-    })
+      };
+    });
   }
 
   getNumberOfAnswered() {

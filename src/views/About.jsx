@@ -28,7 +28,7 @@ export function About(){
         Longevity
       </h3>
       <p>
-        The app is intended to remain available and free (foss/libre/adless) for the forseeable future and beyond, but the exact license is yet to be decided.
+        The app is intended to remain available and free (foss/libre/adless) for the forseeable future and beyond.
       </p>
       <p>
         Estimated costs are somewhere around $20/year for the domain and $5/month for the hosting unless the traffic changes significantly, for a total of about $80/year. If/once Kvissleik reaches a proper 1.0.0 release, a small donation box is going to be added here in order to cover some of the costs. If/once the project funds start going positive, then the profit will be divided into three parts: one part future hosting, one part donations for dependencies, and one part for the developer.
@@ -42,24 +42,35 @@ export function About(){
           </b>
         </summary>
         <pre>{`
+Legend:
+- [ ] Todo
+- [x] Done
+- [a] Started
+- [b] Mostly done
+- [∞] Continuous
+- [-] Withdrawn
+
 Infrastructure:
 - [x] Host as a side-along application on existing server
 - [x] Manually host on dedicated server, as kvissleik.no
 - 0.0.1
 - [ ] Automatically deploy to any new ubuntu server
+- [ ] Simultaneous staging-environment on kvissleik.no
 - 0.1.0
+- [ ] Smooth transfer of infrastructure between versions.
 - [ ] Single Docker-container for easier self-hosting
 - 1.0.0
 
 Signalling:
 - [x] Basic WebSocket signalling server (Samspill)
 - 0.0.1
-- [ ] Copy-paste based signalling
-- [ ] Public-key based rooms through Samspill
+- [b] LocalStorage as a public append-only log simulation.
+- [a] Copy-paste based signalling
+- [x] Public-key based rooms through Samspill
 - 0.1.0
 - [ ] Public append-only log using a Solid Pod
 - [ ] Rewrite the WebSocket server to interact as a public append-only log.
-- [ ] Standardize into a plugin-system for custom signalling frameworks
+- [a] Standardize into a plugin-system for custom signalling frameworks
 - 1.0.0
 - [ ] Online office suites like Google Sheets, Office 365, etc?
 - [ ] Bluetooth?
@@ -146,8 +157,8 @@ Refactoring:
 Security:
 - [x] Ensure no logging outside of errors, and minimize information there.
 - 0.0.1
-- [ ] Password-protect rooms
-- [ ] Public key crypto when signalling.
+- [x] Password-protect rooms
+- [x] Public key crypto when initially signalling, and symmetric crypto once established
 - [ ] Config for custom stun/turn servers
 - 0.1.0
 - [ ] Protect against enumeration of rooms
@@ -160,14 +171,13 @@ Longevity:
 - [x] Publish source code
 - [x] PWA update system 
 - 0.0.1
+- [x] Decide LICENCE-files
 - [ ] Document source code
 - [ ] Document self-hosting
-- [ ] Decide LICENCE-files
 - [ ] Integration tests
 - 0.1.0
 - [ ] Versioning of quiz-formats with conversion support.
 - [ ] Versioning of clients and servers to ensure proper everything is as it should be
-- [ ] Dev- and staging-environments
 - [ ] Regression tests
 - [ ] Unit tests
 - 1.0.0

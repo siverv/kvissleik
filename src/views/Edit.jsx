@@ -15,7 +15,7 @@ export function Edit(){
     } else {
       return collection.get(params.id);
     }
-  })
+  });
   return <section class="view edit-view">
     <Show when={getQuiz()} fallback={<i>no quiz found by id {params.id}</i>}>
       <QuizEditor quiz={getQuiz()} saveQuiz={(quiz) => collection.store(quiz)}/>

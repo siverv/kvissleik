@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import { EventStream } from '../events';
 
 /**
@@ -49,7 +51,7 @@ import { EventStream } from '../events';
  */
 
 
- /**
+/**
   * Different server combines the messages differently:
   * - WS-server has a distinct server as a target and relay, and this handles as much as it can of handshaking and similar.
   * - Public append logs has a HOST_HANDSHAKE, with a JOIN_HANDSHAKE_SIGNAL response, with SIGNAL for acceptance or DENIED for denial.
@@ -64,7 +66,7 @@ export class SignallingServer {
   static details = {
     name: "Template",
     description: "Description of what this signalling server is"
-  }
+  };
   events = new EventStream();
   emitEvent(data){
     this.events.emit(data);
@@ -108,8 +110,8 @@ export class SignallingServer {
 SignallingServer.ParticipantConnectionInput = function({validationNotes}) {
   return <>
     Add necessary form inputs needed for connecting to host
-  </>
-}
+  </>;
+};
 /**
  * Parse the form data in order to create the connecitonDetails necessary to connect.
  * @param {FormData} formData from the encompassing form. May contain more than just the input elements of this plugin.
@@ -123,8 +125,8 @@ SignallingServer.ParticipantConnectionInput.parseFormData = function(formData) {
   return [
     connectionDetails,
     validationNotes
-  ]
-}
+  ];
+};
 
 /**
  * Display the necessary details to make participants able to join this host.
@@ -133,8 +135,8 @@ SignallingServer.ParticipantConnectionInput.parseFormData = function(formData) {
 SignallingServer.HostConnectionDetails = function({server}) {
   return <>
     Add necessary details to make participants join. 
-  </>
-}
+  </>;
+};
 
 /**
  * Display the necessary input elements to configure the signalling server before connection
@@ -142,7 +144,7 @@ SignallingServer.HostConnectionDetails = function({server}) {
  */
 SignallingServer.HostConfigurationInput = function({validationNotes}) {
 
-}
+};
 /**
  * Parse the form data in order to create the connectionConfig necessary to connect.
  * @param {FormData} formData from the encompassing form. May contain more than just the input elements of this plugin.
@@ -156,5 +158,5 @@ SignallingServer.HostConfigurationInput.parseFormData = function(formData) {
   return [
     connectionConfig,
     validationNotes
-  ]
-}
+  ];
+};

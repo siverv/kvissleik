@@ -246,3 +246,13 @@
   font-size: 120%;
   border-bottom: 2px dotted steelblue;
 }
+
+
+
+
+
+@media  screen and (max-width: 600px) {
+  .quiz .quiz-body {
+    grid-template-columns: auto;
+  }
+}

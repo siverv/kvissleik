@@ -13,7 +13,7 @@ export function Make(){
   return <section class="view make-view">
     <section class="section">
       <Link class="button-link create-new-quiz" href={`/edit/new`}>
-        create a new quiz
+        Create a new quiz
       </Link>
     </section>
     <section class="section local-section">
@@ -27,7 +27,6 @@ export function Make(){
       <ul>
         <For each={collection.list()} fallback={<i>no quizzes stored.</i>}>
           {(quiz) => {
-            let [copied, setCopied] = createSignal(false);
             return <li>
               <Link href={`/show/${quiz.id}`} class="quiz-name">
                 {quiz.name}
@@ -51,7 +50,7 @@ export function Make(){
               <button type="button" class="quiz-delete" onClick={() => collection.remove(quiz.id)}>
                 delete
               </button>
-              <CopyToClipboardButton class="quiz-export" getValue={() => JSON.stringify(duplicateQuiz(quiz))}>
+              <CopyToClipboardButton class="quiz-export" getValue={() => JSON.stringify(duplicateQuiz(quiz, true))}>
                 export as json
               </CopyToClipboardButton>
             </li>;

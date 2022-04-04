@@ -4,7 +4,6 @@ import { updateReadySignal } from "./utils/swUtils";
 import { Link } from "solid-app-router";
 import { AppRoutes } from './routes';
 
-
 export function App(){
   const [updateReady, setUpdateReady] = updateReadySignal;
   return <div class="app">
@@ -34,7 +33,7 @@ export function App(){
         </Link>
         <div style="flex-grow: 1"></div>
         <Link class="nav-link" href="/config">
-          config
+          <s>config</s>
         </Link>
         {/*<Link class="nav-link" href="/test">
           testbed
@@ -51,7 +50,7 @@ export function App(){
           <pre>
             {error}
           </pre>
-        </>
+        </>;
       }}>
         <AppRoutes/>
       </ErrorBoundary>
@@ -66,6 +65,8 @@ export function App(){
         </a>
         {` | `} 
         <span>2022</span>
+        {` | `} 
+        <span title={`Build time: ${ /* eslint-disable-line no-undef */ new Date(__APP_BUILD_TIME__).toISOString()}`}>v{__APP_VERSION__}</span>
         {` | `} 
         <Link class="nav-link" href="/about">
           about

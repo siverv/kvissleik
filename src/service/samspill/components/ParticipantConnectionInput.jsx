@@ -3,7 +3,7 @@ import { useSearchParams } from 'solid-app-router';
 import { createSignal, Show } from 'solid-js';
 
 export function ParticipantConnectionInput({validationNotes}) {
-  let [searchParams] = useSearchParams()
+  let [searchParams] = useSearchParams();
   let [showPassword, setShowPassword] = createSignal(searchParams.hasPassword === "true");
   return <>
     <input type="hidden" name="password_hasPassword" value={showPassword() ? "true" : "false"}/>
@@ -40,9 +40,9 @@ ParticipantConnectionInput.parseFormData = function(formData) {
   if(hasPassword){
     config.password = formData.get("password") || null;
   }
-  config.name = formData.get("name")
+  config.name = formData.get("name");
   if(!config.name){
-    validationNotes = {...validationNotes, name: "You need a name"}
+    validationNotes = {...validationNotes, name: "You need a name"};
   } else if(!config.name.match(/^.{1,20}$/)){
     validationNotes = {...validationNotes, name: "Name needs to be between 1 and 20 characters"};
   } else {
@@ -52,5 +52,5 @@ ParticipantConnectionInput.parseFormData = function(formData) {
     config,
     validationNotes,
     searchParams
-  ]
-}
+  ];
+};

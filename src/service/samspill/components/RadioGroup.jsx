@@ -11,8 +11,8 @@ export function RadioGroup({name, initialValue, options, onInput}){
           <label title={option.description} class="radio-group-button" htmlFor={id}>
             {option.label}
           </label>
-        </>
+        </>;
       }}
     </For>
-  </div>
+  </div>;
 }

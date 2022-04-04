@@ -1,0 +1,102 @@
+{
+	"id": "1nce6n7-1iwf7h-4i25sx-14wil3q",
+	"name": "The Default Quiz\n",
+	"questions": [
+		{
+			"id": "fns0h3-sn3dru-xfr2ls-14xtg21",
+			"text": "Which letter is in the blue (upper-left) box?<br>",
+			"correct": "1ndv9rb-7kvo5r-zdb3dx-9xjglk",
+			"alternatives": [
+				{
+					"id": "1ndv9rb-7kvo5r-zdb3dx-9xjglk",
+					"text": "A"
+				},
+				{
+					"id": "k30qn8-41qghm-7alkd4-zm1c1d",
+					"text": "B"
+				},
+				{
+					"id": "1km1una-1c7jxff-1864f6f-153jc29",
+					"text": "C"
+				},
+				{
+					"id": "1lvxl1t-10xeftm-z9b5sm-13oocd1",
+					"text": "D"
+				}
+			],
+			"image": "data:image/webp;base64,UklGRnAEAABXRUJQVlA4IGQEAAAwMACdASrwAPAAPikSh0KhoQpVWoAMAUJZW7xUpXjuRPAIEv/gHsRxfww/Yfyc8lET/Q/yv/rH7gdkrvl4ZzL+zh58N3X/AKXwvs9Sv6VYf/c2YKf1KroVlMk8oJLJ5ecqVXlmV8aqcSrolVn9j0+S1Lo6C7Jlk9jj6xrhGeNms7jrHMC+B1i+mkANGVYQzDXmlQOVAoaHDvofa0+JDuwr3+33tmIy36mNhkRJ5DE2BHuceoBQ/3q1YSrgl6E9IdiC29UjgcznTtPN1U+nNBOiaghEUsT9lnL6aR1Yj3OmJAizBSyVBKdV3LCMK3bBBklktwJcQ0Ze50xMAay9hJJPwjHOsizmkSzM0rNyHuVoKzN3OpbRkUygM14fMLPg5GtEmEJjYatR+W9p31fwAGmaNF4/4UH9m0KB+LN8H62OPo1ElPpE8W39ilP6W9VfXhLqTE9o66bdH/Ut6kAKnVJyiqOwJ3ks0BVmuwqj2CECK1gcGb1WaxKCFahtPj+0urGphztlWUZXTTgAAP4oZ3P6JAIXjclu1fEDn17ZgDko19UvwxX2etbzk1mXvCA56VXHyMcvTjwHt1tdWhWKdDMuwheGET8ru+o/aou2AZUkacnHhOAPvcmcQABJoDON5A4Os3k8lCHgXLVb2WMjt32toCD9uPP7hENKQuAge+dWUhC3mXXTxWEd/8xnY7iDbUCzbMSGkHrzOZB2i0/WlocJ3k1R5WfMEmkJPymNJy2ijOCJThEBXi+r0X7FNAs6G9DHZv+NrWpL0ELdvePPtIUFAGhFH4e2s2m/KerIDwDels7PAWFDh+FXXVvcpgu5iq1MONNb1Bx+b/qifV9UYE9UQnAH3kwELCBHC/gpudgmMkxJlko8qqfsAt9kLIiFfIZ0F3bjpD3UV7dDvcgWDZS2FQvSx/R72+S7gY+k9yOrBNSNldXznO7fJmCffiWYBK3NgAkZwcAUQhmEVUunYIxrAlXZ8h0Srs+PDrulSkxjMvDnQ69R/lmt2rnAZdBjlkdW9lY9k2rjiUeFDqlhsBTqpy124bq493Y7cmIPxoGdMS9XB+kGglPvMWk2mYGAyRXCtvLJKHJ+bHjylLhgVrjGFL/2exNzqUL0OCXC7xKVkFfTjlVL8e+zBi5iICq2GzTSOh7t7fJhvjvePOg+Tnrb+6zMlknzQNc1m27EqZlTLRwuobper2T5d/h+5FJiaS7YeY67H/wukL962pzKTtzTzh9X6uOdrKe1657/Y6TDwOEBF/jKrMnwH4DxeACwPFkEFg6gDw5M9mYsALPqlB1HYaLUcXDkfGDn94jX0WlS1QEo73U2NcZ7CASrnKsCpNL5xh5FMu9oy1eqGJXxpjebrRmHbM3BVGMhv7a045ju14QXkgZCysY5dJqoDPN9oPhM/AiZZMIPQgZUhR/LlkhJNCB1zhsUpzPSWWhUlrwyz7lUDcvH9DVUIFfljyXgr5PSv4NPSEKICN18+Qt9kCq84AAAAA=="
+		},
+		{
+			"id": "7hzbb1-1ek73h0-a7m1s8-1anwm5t",
+			"text": "Which letter is in the red (bottom-right) box?<br>",
+			"correct": "l4hptf-cvxitg-tutnqb-ocx7rs",
+			"alternatives": [
+				{
+					"id": "80u4un-5tj3zr-kn5qsn-1dotniz",
+					"text": "A"
+				},
+				{
+					"id": "1pva0s-1myphiw-1yccqo8-xj12p4",
+					"text": "B"
+				},
+				{
+					"id": "2j8h61-khh9bz-19fchr0-123oqa6",
+					"text": "C"
+				},
+				{
+					"id": "l4hptf-cvxitg-tutnqb-ocx7rs",
+					"text": "D"
+				}
+			],
+			"image": "data:image/webp;base64,UklGRoQEAABXRUJQVlA4IHgEAAAwLwCdASrwAPAAPikSh0KhoQqd3l4MAUJZW7xV9RH/45/3YBYtf8A8+mO+K/8b+Kvi6ix7V+Qf5XcoP3C/HbteHpQf921/AKX/vsPzX6sICX9gGtuX/8KdBRZsKp6Zo1LvXQGr7WBkfRR2u1uDEpJMk1GsmPVjJmcQi0GY+b0SF7fZiRH6JJSIkQsOSqTtNoyADVodKmFeoS0mLHyY+YFEiVaaq9iXirDmxGjXwNtDyUe1y82BTjZDM1fa2C+N0x+FHB/SFwrW8SgN6khTLt7k9s7Gl4lBWfMfO9PhPS/9028+BH/h5rdfuJ5niyD47u2Izs2WAabVOayV0HiVdRSkO3bZtWQaDfHlCQ/c6cotweWnjPJky4UZZx+kukgYtMW5Itt/Zex62gm2hqQCQRRPKc5bJKcyujlFjry2OSrPOcLf6J45jIfq9Dq99Zw7KcUMkElawmKGZjs4fnEKOdClKH+kFedvB26befAj/xMrMO6ULnsy656nIqh2cKln+0zngAD+T2bLnsb0uybz535870F+N/Slx9VPDIh0C2bGf8msuzOkaTGUuqP/tWeYI/naS9k117MAwOvGZf/w54BWOlCczRszNLKt27pslL+u7ZzncA0IHfD/qD4xozZsgyNBvJ+ur3G2tL8kgEwA6sbnEFKFnND+21RSAcDesXoU1iyDTlMyEQDOsuY2LJmFY3Hdd23AhiG8ZQolVgFifIy3/SdPMN2Pja7eldzaLuVakwEh+3HC5vlkjPbopJ8AYls3Mqoq9cDLEZAwL4TSorB+9BKCniGmXgjp2KMuSTBOWTWZKkG+yXpvpKR36zDBNQeX+Y16ZtU8Q0vhln/6B2jd/odgoBkG7R8mkjDhO1EhH7Gia4DQAfiZRf0cKXqDuiA9nQwBlVYoNj0UbHyuDdPQeTnQ86jAsAl6pQfdSrb8dV7sTLH1M09IsBxPcyhipTJtFx+/R6vJglRz1g/2fZ6c6h/xK2et18FCoPqI8j2ffM6Js2G1DMpOOgzufpeRjxv59FOIaBEwx5gswx/bGCGF5ch9QfPp2OPBZQRZ+5vAKtNvo7+LzCcZATh6pUpNObwufynRKJkgLPw7tlQqhCEC3iam/BpaEAx6OFSJYusCZMUtFYlky6brzm7W9zlNMLC6kxW7mjyX98TCgfWNa6vQMcLtM16umVJJRoisN/jhSMBfS52LnYudi4hYrms3w5TNdXzvwPHgKyJprINv8sdydyMDQP9R8ny/DGcY44JkZM7W77vu0ljE3gGKjwUP2O3L4UsVWOSUcHkxqaPYQfExx1iEqE950MH0+UrYTRHvQBP4zS2BNYgPAlK8DhrSuaE1GeGRlSG6ut8VwuFD7RBqfFzg8P3o9wx6c1XmCpxJHkg3VbWYhMq/z7QUtRpL2BFygnZagO8N+cVfSilxIKxkpD1PAf64R0dmZkynA81l+OVhvlKlt0PivIgQTX95qJKIReR0B8/cr3wr3ck+NGdYMd0o5YszO5Hde3qXcv2D1V641IAAAAAA"
+		},
+		{
+			"id": "zdesrs-1m6v22o-1aji32t-1tp76ph",
+			"text": "Which letter is in the green (upper-right) box?<br>",
+			"correct": "1a0b2h1-1iay740-1awk1bx-bmg5lf",
+			"alternatives": [
+				{
+					"id": "16ci66b-1fus607-1ihwasq-1dtrkwp",
+					"text": "A"
+				},
+				{
+					"id": "1a0b2h1-1iay740-1awk1bx-bmg5lf",
+					"text": "B"
+				},
+				{
+					"id": "uzm505-ehjfeg-znlpn6-9vgq53",
+					"text": "C"
+				},
+				{
+					"id": "1ma0sos-1okd7fc-qdp533-1minnd0",
+					"text": "D"
+				}
+			],
+			"image": "data:image/webp;base64,UklGRroDAABXRUJQVlA4IK4DAAAwPACdASqQAZABPikUh0KhoQnd8igMAUJZ27hcG4A/gH4F/Xg/lONs/7V/Kf1y2Xft38z/W/8s+uE5A70dn8/0C1HgUmQEShp5aVtNdE4MhARMyJkcMkou0cpqxp8F1MiFs0ZPImRwySi7RyoZB/6BSOdMIc2gpHOmEOjtRqebNNdzziIV2mu55xEiUVls+nLJ+pC8a7vwLEr9O+SZnpGm2mJZJmfJlQjnIH+7EQQNvwLaH7gyEADyJkcMkomZEyOGSUqNusac0ZPImRC2aMnkTKhkHhBSOdMIcyzkkSYcb+ZUSbC+WXnEwoNRqDLMkzPSM87ZkmZ6RnQWcCxLJONEkP5s00Pae7WjlMlSSlRt1YU8HZnJIfzZpoe0+C6mRC2aMIFI5fzjfytii6mUyVJKJmRMiFs0YQKRzDXKwcCK03KKy2fTXMnyAXbk+JxTq5VBAitcSdeIIcmzTXc84k5s013PONuymrGnvHYiCWOGoiFdp6nwLaH7dWNPekYiCOcggkdpHDJKLtHKbpw1EQrtNrUawrmyqu76RrCuaxMoFVUI0m0knFOpJUIXIZnlzKZKklF2jlNWNPdrRyoZB/6BSOdMIc2gpHL+ccICVDsD9urGnvHYiCBt+CCR2WFPB4QUjnTCHMs5JDgAAP6usU/7+Ctu3DlK1QUN5BiyZE0p+XDjXJw2ZJsH8zGxoxvYatYk/MDG15JtDCECpfBJSchHZJk0TaK+PaSA4kChBjAiUASiCGQPW6ioAAUeysRNc94EQN69aPpPHWnJstBaZ88+xOl7Az/nv5nKOGa8tz3zhu62H5IMw9lea4jpsg+ATQ1QESPKVEM5OQLP7+AAPHEcAK6q9oYArwY7ZVtZLt54N6CN0EZ/VdPHo3awjtI5t2zj9CkEnUAvv0WdIutLOn/fk0sr6pDiOm08fS64NPLEknVFxaVk7sZIzaLMJUHpxoB9GDuqN1haE5SWRIS7V7DQBz3jP0majnOR27IqsoCYOnd64DuoIx0LrhfCDU03E4St959SNgLPt+GRLOustYhK8no23wkV49OCEqNXzCMIpQ6Rf93QxlWQcNMNVgZ5cxYO/gkv4BAvgCGAr8zEAH4pqbhiG8LvbFOV9X3W9p2tREKW3p2l+HlZb5sMPtB2yc40lMWKHhzw+niUuwmQCy7sn0nGvFFm42VJglQP4Z1LgEtDeO5lW+W+iWI4XAVnmLemNdeySZelQVOM73k30kwsGGU1S029KbbbE8HAAAA="
+		},
+		{
+			"id": "1wyxo9m-14y7pg9-1e7z02n-9u1fdy",
+			"text": "Which letter is in the orange (bottom-left) box?<br>",
+			"correct": "yz2isa-15e52ry-vfh6g1-kx5ful",
+			"alternatives": [
+				{
+					"id": "1e101oy-1k9s958-1788q40-qx6t8j",
+					"text": "A"
+				},
+				{
+					"id": "1dlgrdt-4kly09-22bmb4-cj8kz9",
+					"text": "B"
+				},
+				{
+					"id": "yz2isa-15e52ry-vfh6g1-kx5ful",
+					"text": "C"
+				},
+				{
+					"id": "9bbbig-gz52oh-2krjzw-oi00sl",
+					"text": "D"
+				}
+			],
+			"image": "data:image/webp;base64,UklGRmAEAABXRUJQVlA4IFQEAABwLwCdASrwAPAAPikSh0KhoQo2MmQMAUJZW72QECA3gFB/SoH8A9iOL+NP8N+TPjxhg6x+if97/KHrq9vO6/41/ktnTlaf/8Z3/4btT+EUvHfZ0QBBZAsbM5tet2Jo/4n6CS9QLHm50kZ1yvJy2F4akSDvI908+A5z626069V9fZ5/MQ6SZfo+g4K+1b3krxx4n5Mm8afmlV1pfNWPrVivOpp4NQG7fS8/5HzsJmrMw7kr5Wf/gaXKl5/qHuS6lLTQsriU2a9AIhJpgnKO1qcCWRR/XSC/HqJZsp8uJG5MENCvp80KF6c08XsZgT0i4dV0mEuIBnzc3l1JmqRFpX5hIcXVyj1Or1MPtmjOsQtTwufNkONp7sK99Vi8sY6d9dZth8ZTywD6Rcs0eRDYseQelRA99swGaG/vu13v86E5IqWbMI2c5wDkVqpKz7WWE4D0XbxxdjWSwtID3Mz7WDUH/i8E8EidxKWw1x14ael1qMZOPcsdZX6xhC3XMGHllBu1tFAAAP6D3WrGB6zwVHbOh1chqk/v7OaPm4G1komhCRUwneAiN32PBgXkQ7ofYhPMop+R3stmFTO0Wsn4xYOO3jr2fWYQeQj9mZxomRrn4KvQyVdJyoQuLu5if6OkR2l/+1Z9jTS+qUA/sdZaiUABzsNvuHo/DrlEMYgQQdRUDiJE+noLKpPACrkBoiXjFMUIQ98KLCGyYqg2UeIoUNrOXPKEBnLOZPsjvd/XNItBilpdRtgKILpOLaejC4JZLAe6DAX4XK0GPEFW1/c1z/PzhRIRh2MOW+XnL31O/5cup5F88GpPMjHgw5iku3RmWF7wKpNnACCz91XgONuRHZtIHmABa5IglIvuaLweMxT5LNbfqJE5lQfx39NaJz5XLWYMNAJLkBWJJgNftM00L1iAWQf+stGh8fvG3p8o3J1h20iqB/qAR2yK4/6A+wJ2/TrSSgrq0irUbNWec20ltIJbCQyjaMEnyfYi7lI+ZqzpWiMoyOh9UbIO6FdxLHpCq2tAAdMPXsZJyzimDnvJvkdA8gFYWYRvZLvVsFT8iZkCIaAmkHGYhVxQCJRiresXoOaI29ASN1SMvq/+iIOoIcXHuTDTLjcFXUzTSyu+hawEBwoMf/qyYW6TbOPEJv2itX6CTUabfXZGR8/eRWotHx01zZR/lwPk+2SqtLmv/u+vwKvvXx9kSvlI9YY+2la2IBfA3hqYn0f8cv1Xs9gF2TsVxtJHWDhDGS4kM+B3khq2COedJH7Q16csO6OdkqFK7IYpKPsarJkk9xBFp1SQ/UMuLRMbk15Nd8AwqUo3uJremj5SrMfdImJY4hxUG2Q8CYRHZORItfvR6LvKNbsqfvfx4+pE+XWRveC+w4Dxt6uEdkEip4vTM5WL6bEPNVlQnEVNR596iyfqvsMtbs93qG32TSUghSSvmLxB4F9ouuBHynS1qyuFDTowHKC7wFeehZbQAAAA"
+		}
+	]
+}

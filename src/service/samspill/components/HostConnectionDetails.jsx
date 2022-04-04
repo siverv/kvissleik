@@ -23,5 +23,5 @@ export function HostConnectionDetails({server}) {
         </CopyToClipboardButton>
       </div>}
     </Show>
-  </section>
+  </section>;
 }

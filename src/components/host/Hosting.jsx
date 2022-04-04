@@ -44,7 +44,7 @@ function HostingQuestion({ctrl, question}){
     if(ev.key === "Escape"){
       delete document.body.dataset.zen;
     }
-  }
+  };
   document.body.dataset.zen = "true";
   // window.addEventListener("click", next);
   window.addEventListener("keydown", escapeZen);
@@ -68,17 +68,17 @@ function HostingQuestion({ctrl, question}){
       getParticipants={() => ctrl.getParticipants()}
       getCurrentStandings={() => ctrl.getCurrentStandings()}
     />
-  </div>
+  </div>;
 }
 
-function DisplayFinalResults({ctrl, results}) {
+function DisplayFinalResults({ctrl}) {
   return <>
     <h3>And the results are....</h3>
     <ParticipantList
       getParticipants={() => ctrl.getParticipants()}
       getCurrentStandings={() => ctrl.getCurrentStandings()}
     />
-  </>
+  </>;
 }
 
 export function Hosting({room, quit}){
@@ -128,5 +128,5 @@ export function Hosting({room, quit}){
         Quit
       </button>
     </aside>
-  </ErrorBoundary>
+  </ErrorBoundary>;
 }

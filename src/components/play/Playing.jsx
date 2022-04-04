@@ -43,7 +43,7 @@ function PlayingQuestion({ctrl, question}){
     if(ev.key === "Escape"){
       delete document.body.dataset.zen;
     }
-  }
+  };
   document.body.dataset.zen = "true";
   window.addEventListener("keydown", escapeZen);
   onCleanup(() => {
@@ -66,7 +66,7 @@ function PlayingQuestion({ctrl, question}){
         }}
       /> : undefined}
     />
-  </>
+  </>;
 }
 
 function DisplayFinalResults({ctrl, results}) {
@@ -75,9 +75,9 @@ function DisplayFinalResults({ctrl, results}) {
 
     <h3>And the results are....</h3>
     <ParticipantList getParticipants={() => {
-      return results.map(({participantName, participantId}) => ({id: participantId, name: participantName, state: "CONNECTED"}))
+      return results.map(({participantName, participantId}) => ({id: participantId, name: participantName, state: "CONNECTED"}));
     }} getCurrentStandings={() => results} limit={3}/>
-  </>
+  </>;
 }
 
 export function Playing({room, quit}){
@@ -127,5 +127,5 @@ export function Playing({room, quit}){
         Quit
       </button>
     </aside>
-  </ErrorBoundary>
+  </ErrorBoundary>;
 }

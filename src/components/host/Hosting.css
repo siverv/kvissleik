@@ -34,3 +34,24 @@
   height:  min-content;
   margin: auto;
 }
+
+
+
+
+
+@media  screen and (max-width: 600px) {
+  .hosting-quiz .hosting-question {
+    display: grid;
+    grid-template-columns: auto;
+  }
+  .hosting-quiz .hosting-question .quiz {
+    grid-column: unset;
+  }
+  .hosting-quiz .hosting-question .continue-quiz {
+    grid-row:  unset;
+    grid-column: unset;
+  }
+  .hosting-quiz .hosting-question .participant-list {
+    grid-column: unset;
+  }
+}

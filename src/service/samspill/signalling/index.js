@@ -1,5 +1,5 @@
 
-import {LocalStorageSignallingServer} from './localStorageSignallingPlugin';
+// import {LocalStorageSignallingServer} from './localStorageSignallingPlugin';
 // import {CopyPasteSignalling} from './copypasteSignallingPlugin';
 import {WebSocketSignallingServer} from './webSocketSignallingPlugin';
 
@@ -17,12 +17,12 @@ export function getSignallingServer(type){
   }
 }
 
-export function getSignallingServerOptions(type){
+export function getSignallingServerOptions(){
   return signallingServers.map(server => ({
     value: server.SIGNALLING_SERVER_ID,
     label: server.details.name,
     description: server.details.description
-  }))
+  }));
 }
 
 export default WebSocketSignallingServer;

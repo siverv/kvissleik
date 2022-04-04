@@ -1,4 +1,4 @@
-import {createNewQuestion} from '../../service/makeService';
+import {createNewQuestion, createDefaultQuiz} from '../../service/makeService';
 import {DisplayQuiz} from './DisplayQuiz';
 import "../../style/views.css";
 
@@ -11,21 +11,27 @@ export const examples = [
     const question = createNewQuestion();
     return <DisplayQuiz
       question={question}
-    />
+    />;
+  },
+  function DisplayQuizWithImage(){
+    const question = createDefaultQuiz().questions[0];
+    return <DisplayQuiz
+      question={question}
+    />;
   },
   function DisplayQuizWithAnswer(){
     const question = createNewQuestion();
     return <DisplayQuiz
       question={question}
-        getAnswer={() => question.alternatives[0].id}
-    />
+      getAnswer={() => question.alternatives[0].id}
+    />;
   },
   function DisplayQuizWithValidation(){
     const question = createNewQuestion();
     return <DisplayQuiz
       question={question}
       correct={question.alternatives[0].id}
-    />
+    />;
   },
   function DisplayQuizWithCorrectAnswer(){
     const question = createNewQuestion();
@@ -33,7 +39,7 @@ export const examples = [
       question={question}
       getAnswer={() => question.alternatives[0].id}
       correct={question.alternatives[0].id}
-    />
+    />;
   },
   function DisplayQuizWithIncorrectAnswer(){
     const question = createNewQuestion();
@@ -41,7 +47,7 @@ export const examples = [
       question={question}
       getAnswer={() => question.alternatives[0].id}
       correct={question.alternatives[1].id}
-    />
+    />;
   },
   function DisplayQuizWithIncorrectAnswerAndStatistics(){
     const question = createNewQuestion();
@@ -55,7 +61,7 @@ export const examples = [
         .set(question.alternatives[2].id, 7)
         .set(question.alternatives[3].id, 0)
       }
-    />
+    />;
   },
   function DisplayQuizWithValidationAndStatisticsWithDiverseAnswers(){
     const question = createNewQuestion();
@@ -68,7 +74,7 @@ export const examples = [
         .set(question.alternatives[2].id, 7)
         .set(question.alternatives[3].id, 0)
       }
-    />
+    />;
   },
   function DisplayQuizWithValidationAndStatisticsWithOneAnswer(){
     const question = createNewQuestion();
@@ -81,7 +87,7 @@ export const examples = [
         .set(question.alternatives[2].id, 0)
         .set(question.alternatives[3].id, 0)
       }
-    />
+    />;
   },
   function DisplayQuizWithValidationAndStatisticsWithNoAnswers(){
     const question = createNewQuestion();
@@ -94,7 +100,7 @@ export const examples = [
         .set(question.alternatives[2].id, 0)
         .set(question.alternatives[3].id, 0)
       }
-    />
+    />;
   },
   function DisplayQuizWithValidationAndStatisticsWithExtremeDifference(){
     const question = createNewQuestion();
@@ -107,7 +113,7 @@ export const examples = [
         .set(question.alternatives[2].id, 7)
         .set(question.alternatives[3].id, 60000)
       }
-    />
+    />;
   },
   function DisplayQuizWithIncorrectAnswerStatisticsAndScore(){
     const question = createNewQuestion();
@@ -126,7 +132,7 @@ export const examples = [
         added: 0,
         position: 2
       })}
-    />
+    />;
   },
   function DisplayQuizWithCorrectAnswerStatisticsAndScore(){
     const question = createNewQuestion();
@@ -145,7 +151,7 @@ export const examples = [
         added: 678,
         position: 2
       })}
-    />
+    />;
   },
   function DisplayQuizWithCorrectAnswerStatisticsAndScoreWithExtremeDifference(){
     const question = createNewQuestion();
@@ -164,7 +170,7 @@ export const examples = [
         added: 678,
         position: 2
       })}
-    />
+    />;
   }
-]
+];
 
