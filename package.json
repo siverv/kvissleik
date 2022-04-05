@@ -3,6 +3,16 @@
   "private": true,
   "version": "0.0.2",
   "description": "Quiz web-app with a single host and multiple clients, using WebRTC",
+  "info": "Quiz web-app with a single host and multiple clients, using WebRTC, inspired by the Jackbox game series. Room-hosting is done through a dedicated signalling server (samspill), with alternative signalling systems on the roadmap. The minimal quiz-editor should not be considered part of the SolidHack submission, as its origins date back to the initial commit before the contest start",
+  "homepage": "https://kvissleik.no",
+  "contributors": [
+    {
+      "name": "Siver K. Volle",
+      "email": "package-json.contact-at-kvissleik.no@siverv.no",
+      "url": "https://www.siverv.no"
+    }
+  ],
+  "keywords": ["solidhack", "best_app"],
   "license" : "GPL-3.0-or-later",
   "scripts": {
     "start": "vite",

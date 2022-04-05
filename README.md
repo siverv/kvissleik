@@ -4,9 +4,11 @@
 
 A p2p single-host multi-client application inspired by the Jackbox games. 
 
-[kvissleik.no]
+Demo at [kvissleik.no](https://kvissleik.no)
 
-Source-code should be available at [git.kvissleik.no]
+Source-code should be available at [git.kvissleik.no](https://git.kvissleik.no)
+
+![Playthrough of the default quiz with 3 participants](kvissleik-v0.0.2.gif)
 
 ## Usage
 
