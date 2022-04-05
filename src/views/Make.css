@@ -28,6 +28,12 @@
   color: black;
   border-radius: 3px;
 }
+
+
+.make-view .create-new-quiz:disabled {
+  opacity:  0.5;
+  cursor: default;
+}
   
 
 @media screen and (max-width: 800px) {
@@ -35,4 +41,20 @@
     display: flex;
     flex-direction: column;
   }
+}
+
+
+
+.solid-hack-warning {
+  background-color:  #ffdddd;
+  border: 5px dashed tomato;
+  border-radius: 5px;
+  padding: 1ch;
+  margin: 3ch;
+  max-width:  500px;
+  margin:  0 auto;
+}
+
+.solid-hack-warning h4 {
+  margin:  0;
 }

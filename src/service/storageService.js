@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import {createDefaultQuiz} from './makeService';
 
 function saveJson(key, json){
   localStorage.setItem(key, JSON.stringify(json));
@@ -7,7 +8,8 @@ function saveJson(key, json){
 function loadJson(key){
   let raw = localStorage.getItem(key);
   if(!raw){
-    return null;
+    let defaultQuiz = createDefaultQuiz();
+    return [[defaultQuiz.id, defaultQuiz]];
   }
   try {
     return JSON.parse(raw);

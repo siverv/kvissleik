@@ -45,8 +45,8 @@ button:hover {
   background-color: var(--theme-btn-light);
 }
 
-.button-link:active,
-button:active {
+.button-link:active:not(:disabled),
+button:active:not(:disabled) {
   background-color: var(--theme-btn-dark);
 }
 

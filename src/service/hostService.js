@@ -284,6 +284,8 @@ export class HostedQuizController {
             }
           }
         }, 1000);
+      } else {
+        this.countdown = null;
       }
     });
   }

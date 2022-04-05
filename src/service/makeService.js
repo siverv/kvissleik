@@ -38,7 +38,7 @@ export function createQuiz(){
 }
 
 export function createDefaultQuiz(){
-  return duplicateQuiz(defaultQuiz);
+  return duplicateQuiz(defaultQuiz, true);
 }
 
 export function duplicateQuiz(quiz, keepName=false){
