@@ -10,27 +10,11 @@ import { Link } from 'solid-app-router';
 export function Make(){
   let collection = getQuizCollection();
   let [importError, setImportError] = createSignal(null);
-  let [termsAccepted, setTermsAccepted] = createSignal(false);
   return <section class="view make-view">
-    <section class="solid-hack-warning">
-      <h4>About the SolidHack contest:</h4>
-      <p>
-        The quiz-editor is not part of the entry, and should not be included for consideration while voting; this is merely a useful tool to actually create quiz to properly use the quiz-app. Only the actual p2p quiz aspect (play / host) is part of the contest.
-      </p>
-      <p>
-        The core of the quiz-editor was started on before the contest start, and despite being rewritten, some parts are still in use.
-      </p>
-      <label>
-        <input type="checkbox" onInput={(ev) => setTermsAccepted(ev.target.checked)}/>
-          Accept that the editor is not part of the contest?
-      </label>
-    </section>
     <section class="section">
-      <Show when={termsAccepted()} fallback={<button type="button" class="button-link create-new-quiz" disabled="disabled">Create a new quiz</button>}>
-        <Link class="button-link create-new-quiz" href={`/edit/new`}>
-          Create a new quiz
-        </Link>
-      </Show>
+      <Link class="button-link create-new-quiz" href={`/edit/new`}>
+        Create a new quiz
+      </Link>
     </section>
     <section class="section local-section">
       <h3 class="section-header">
