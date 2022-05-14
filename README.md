@@ -12,7 +12,7 @@ Source-code should be available at [git.kvissleik.no](https://git.kvissleik.no)
 
 ## Usage
 
-At the moment, playing games of Kvissleik requires the use of the [Samspill signalling server](https://git.kvissleik.no/samspill/file/README.md.html).
+At the moment, playing games of Kvissleik requires the use of the [Samspill signalling server](https://git.kvissleik.no/samspill/).
 
 
 ## Install
